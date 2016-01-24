@@ -11,70 +11,87 @@ var Transaction = require('../models/Transaction.js');
 
 var router = express.Router();
 
-// Get all transactions
+// Get all transaction
 router.get('/', function(req, res, next) {
-  Transaction.find(function(err, txns){
+  Transaction.find(function(err, transactions){
     if(err){
       console.log('error when fetching all transactions: ', err)
       return next(err);
     }
     console.log('Returning all transactions: ');
-    res.json(txns);
+    res.json(transactions);
   });
 });
 
-// Create a single transaction
+// Create or update a single transaction
 router.post('/', function(req, res, next) {
-  Transaction.create(req.body, function(err, txn){
-    if(err){
-      console.log('error when creating this transaction: ', err)
-      return next(err);
+  // query for a transaction with given uuid
+  var query = {uuid: req.params.uuid}
+  var options = {
+    upsert:true, // create if it doesn't exist
+    new:true, // return new changed object, not old one
+  };
+
+  Transaction.findOneAndUpdate(query, req.body, options, function(err, transaction){
+    if (transaction.uuid == null){
+      console.log('null transaction ID. This should never happen: ', transaction )
+      return next();
     }
-    console.log('Creating transaction: ');
-    res.json(txn);
+    if(err){
+      if (err.code === 11000){
+        console.log('Transaction already exists with key ');
+        return next();
+      } else {
+        console.log('error when creating this transaction: ', err)
+        return next(err);
+      }
+    }
+    console.log("uppppserrr");
+    console.log('upserting transaction ', transaction.uuid);
+    res.json(transaction);
   });
 });
 
-// Get single transaction with given bank uuid
-// eg: curl localhost:3000/transactions/3c7a0627-3052-3891-a16b-928a8f11b99e
-router.get('/:uuid', function(req, res, next) {
-  var query = {uuid: req.params.uuid};
+// Get single transaction with given transaction uuid
+// eg: curl localhost:3000/transaction/3c7a0627-3052-3891-a16b-928a8f11b99e
+router.get('/:transaction_uuid', function(req, res, next) {
+  var query = {transaction_uuid: req.params.transaction_uuid};
 
-  Transaction.findOne(query, function(err, txn){
+  Transaction.findOne(query, function(err, transaction){
     if (err){
-      console.log('error when getting txn with uuid ' + req.params.uuid + ': ', err);
+      console.log('error when getting transaction with uuid ' + req.params.transaction_uuid + ': ', err);
       return next(err);
     };
-    console.log('updated txn with uuid '+ req.params.uuid +': ');
-    res.json(txn);
+    console.log('updated transaction with uuid '+ req.params.transaction_uuid +': ');
+    res.json(transaction);
   });
 });
 
 // Update a single transaction with given bank uuid
-router.put('/:uuid', function(req, res, next) {
-  var query = {uuid: req.params.uuid};
-  
-  Transaction.findOneAndUpdate(query, req.body, function(err, txn){
+router.put('/:transaction_uuid', function(req, res, next) {
+  var query = {transaction_uuid: req.params.transaction_uuid};
+
+  Transaction.findOneAndUpdate(query, req.body, function(err, transaction){
     if (err){
-      console.log('error when updating txn with uuid ' + req.params.uuid + ': ', err);
-      return next(err);
+      console.log('error when updating transaction with uuid ' + req.params.transaction_uuid + ': ', err);
+      return next(err)
     };
-    console.log('updated txn with uuid '+ req.params.uuid +': ');
-    res.json(txn);
+    console.log('updated transaction with uuid '+ req.params.transaction_uuid +': ');
+    res.json(transaction);
   });
 });
 
 // Delete a single transaction with a given bank uuid
-router.delete('/:uuid', function(req, res, next) {
-  var query = {uuid: req.params.uuid};
-  
-  Transaction.findOneAndRemove(query, function(err, txn){
+router.delete('/:transaction_uuid', function(req, res, next) {
+  var query = {transaction_uuid: req.params.transaction_uuid};
+
+  Transaction.findOneAndRemove(query, function(err, transaction){
     if (err){
-      console.log('error when deleting txn with uuid ' + req.params.uuid + ': ', err);
+      console.log('error when deleting transaction with uuid ' + req.params.transaction_uuid + ': ', err);
       return next(err)
     };
-    console.log('deleted txn with uuid '+ req.params.uuid +': ');
-    res.json(txn);
+    console.log('deleted transaction with uuid '+ req.params.transaction_uuid +': ');
+    res.json(transaction);
   });
 });
 
