@@ -12,13 +12,32 @@ import {Motion, spring} from 'react-motion';
 const ReactApp = React.createClass ({
   getInitialState() {
     return {
-      // todo: make initial state
+      targetYear: '2016',
+      targetMonth: '01',
       notes: {},
       txns: {},
     };
   },
 
-  componentDidMount(){
+  getTxnsForMonth(){
+    const txnsApi = '/api/transactions?y=' + this.state.targetYear + '&m=' + this.state.targetMonth;
+    console.log('txnsApi')
+    $.get(txnsApi, function(data){
+      if(this.isMounted()){
+        this.setState({
+          txns: data,
+        });
+        console.log('got txns');
+        this.getNotesForTxns();
+      }
+    }.bind(this));
+  },
+
+  // TODO - this should loop through txns and look up
+  // notes by UUID. There may be a way to make the API
+  // accept an array of uuids instead of doing like 300
+  // individual lookups.
+  getNotesForTxns(){
     const notesApi = '/api/notes';
     $.get(notesApi, function(data){
       if(this.isMounted()){
@@ -28,16 +47,10 @@ const ReactApp = React.createClass ({
         console.log(this.state.notes);
       }
     }.bind(this));
+  },
 
-    const txnsApi = '/api/transactions';
-    $.get(txnsApi, function(data){
-      if(this.isMounted()){
-        this.setState({
-          txns: data,
-        });
-        console.log(this.state.txns);
-      }
-    }.bind(this));
+  componentDidMount(){
+    this.getTxnsForMonth();
   },
 
   render: function(){

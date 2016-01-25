@@ -72,12 +72,26 @@
 	  displayName: 'ReactApp',
 	  getInitialState: function getInitialState() {
 	    return {
-	      // todo: make initial state
+	      targetYear: '2016',
+	      targetMonth: '01',
 	      notes: {},
 	      txns: {}
 	    };
 	  },
-	  componentDidMount: function componentDidMount() {
+	  getTxnsForMonth: function getTxnsForMonth() {
+	    var txnsApi = '/api/transactions?y=' + this.state.targetYear + '&m=' + this.state.targetMonth;
+	    console.log('txnsApi');
+	    _jquery2.default.get(txnsApi, function (data) {
+	      if (this.isMounted()) {
+	        this.setState({
+	          txns: data
+	        });
+	        console.log('got txns');
+	        this.getNotesForTxns();
+	      }
+	    }.bind(this));
+	  },
+	  getNotesForTxns: function getNotesForTxns() {
 	    var notesApi = '/api/notes';
 	    _jquery2.default.get(notesApi, function (data) {
 	      if (this.isMounted()) {
@@ -87,16 +101,9 @@
 	        console.log(this.state.notes);
 	      }
 	    }.bind(this));
-
-	    var txnsApi = '/api/transactions';
-	    _jquery2.default.get(txnsApi, function (data) {
-	      if (this.isMounted()) {
-	        this.setState({
-	          txns: data
-	        });
-	        console.log(this.state.txns);
-	      }
-	    }.bind(this));
+	  },
+	  componentDidMount: function componentDidMount() {
+	    this.getTxnsForMonth();
 	  },
 
 	  render: function render() {
