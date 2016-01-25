@@ -13,7 +13,17 @@ var router = express.Router();
 
 // Get all transaction
 router.get('/', function(req, res, next) {
-  Transaction.find(function(err, transactions){
+  // empty date range
+  var dateRangeFilter = {};
+  // if query string has all date range data declared,
+  // make a filter to pass to the db lookup
+  // expects ?y=2016&m=02
+  if(req.query.y != null && req.query.m != null){
+    var dateRange = req.query.y + '-' + req.query.m;
+    dateRangeFilter = {'times.when_recorded_local': new RegExp('^'+dateRange,'i')};
+  }
+
+  Transaction.find(dateRangeFilter, function(err, transactions){
     if(err){
       console.log('error when fetching all transactions: ', err)
       return next(err);

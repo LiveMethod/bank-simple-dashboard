@@ -6,13 +6,7 @@ var Transaction = require('../models/Transaction.js');
 
 /* GET home page. */
 router.get('/', function(req, res) {
-  // TODO: get each of these UUIDs and query for matching notes
-  Transaction.find(
-    {'times.when_recorded_local': new RegExp('^'+'2016','i')},
-    function(err,data){
-      res.render('index', {transactions: JSON.stringify(data) });
-    }
-  )  
+  res.render('index');
 });
 
 module.exports = router;
