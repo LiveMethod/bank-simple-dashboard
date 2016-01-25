@@ -17,6 +17,7 @@
     "express": "~4.13.1",
     "express-less": "0.0.8",
     "jade": "^1.11.0",
+    "jquery": "^2.2.0",
     "mongoose": "^4.3.5",
     "morgan": "~1.6.1",
     "react": "^0.14.6",
