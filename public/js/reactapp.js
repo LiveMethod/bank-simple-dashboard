@@ -31031,22 +31031,21 @@
 	      }
 	    }
 
-	    for (var j in graphData) {
-	      var totalSpend = 0;
-	      for (var k in graphData[j].txns) {
-	        totalSpend += graphData[j].txns[k].amounts.amount;
-	      }
-	      // console.log(graphData[j].date + ": spent $" + totalSpend/10000);
-	    }
-
+	    // util to add a leading 0 to single digits
 	    function twoDigit(n) {
 	      return n > 9 ? "" + n : "0" + n;
 	    }
 
+	    var barPanelStyles = {
+	      'backgroundColor': '#cccccc',
+	      'position': 'relative',
+	      'display': 'table'
+	    };
+
 	    // FIXME: this is a fucking abomination
 	    return _react2.default.createElement(
 	      'div',
-	      null,
+	      { style: barPanelStyles },
 	      Array.apply(0, Array(31)).map(function (x, i) {
 
 	        var target = targetYear + '-' + targetMonth + '-' + twoDigit(i + 1);
@@ -31074,16 +31073,40 @@
 
 	  render: function render() {
 
-	    // const txns = this.props.txns;
-	    // if(txns != undefined){
-	    //   console.log(txns);
-	    // }
-	    console.log(this.props.txns);
+	    var date = this.props.date;
+	    var txns = this.props.txns;
+
+	    // get a total of all spending
+	    var totalSpend = 0;
+	    for (var t in txns) {
+	      totalSpend += txns[t].amounts.amount;
+	    }
+
+	    var barStyles = {
+	      'width': '20px',
+	      'overflow': 'hidden',
+	      'display': 'table-cell',
+	      'verticalAlign': 'bottom'
+	    };
+
+	    var dateStyles = {};
+
+	    // TODO: data-importance
 	    return _react2.default.createElement(
 	      'div',
-	      null,
-	      this.props.date,
-	      this.props.txns ? 'txns: ' + this.props.txns.length : 'no transactions'
+	      { style: barStyles, 'data-count': txns ? txns.length : 0, 'data-spend': totalSpend },
+	      txns && txns.map(function (txn) {
+	        return _react2.default.createElement('div', {
+	          style: {
+	            'height': txn.amounts.amount / 20000 + 'px',
+	            'backgroundColor': 'red',
+	            'margin': '1px 2px'
+	          },
+	          key: txn.uuid,
+	          'data-uuid': txn.uuid,
+	          'data-amount': txn.amounts.amount / 10000
+	        });
+	      })
 	    );
 	  }
 	});

@@ -63,20 +63,19 @@ const BarPanel = React.createClass({
       }
     }
 
-    for(var j in graphData){
-      var totalSpend = 0;
-      for(var k in graphData[j].txns){
-        totalSpend += graphData[j].txns[k].amounts.amount;
-      }
-      // console.log(graphData[j].date + ": spent $" + totalSpend/10000);
-    }
-
+    // util to add a leading 0 to single digits
     function twoDigit(n){
       return n > 9 ? "" + n: "0" + n;
     }
 
+    const barPanelStyles = {
+      'backgroundColor':'#cccccc',
+      'position':'relative',
+      'display':'table'
+    }
+
     // FIXME: this is a fucking abomination
-    return (<div>
+    return (<div style={barPanelStyles}>
       {Array.apply(0, Array(31)).map(function (x, i){
         
         var target = targetYear+'-'+targetMonth+'-'+twoDigit(i+1);
@@ -95,7 +94,7 @@ const BarPanel = React.createClass({
           date={target}
           txns={txnsForDate}
 
-          key={i + 1} 
+          key={i + 1}
         />)
       })}
     </div>)
@@ -107,14 +106,40 @@ const BarPanel = React.createClass({
 const GraphBar = React.createClass({
   render: function(){
 
-    // const txns = this.props.txns;
-    // if(txns != undefined){
-    //   console.log(txns);
-    // }
-    console.log(this.props.txns);
-    return (<div>
-      {this.props.date}
-      {this.props.txns ? 'txns: ' + this.props.txns.length : 'no transactions'}
+    const date = this.props.date;
+    const txns = this.props.txns;
+
+    // get a total of all spending
+    var totalSpend = 0;
+    for(var t in txns){
+      totalSpend += txns[t].amounts.amount;
+    }
+
+    const barStyles = {
+      'width':'20px',
+      'overflow':'hidden',
+      'display':'table-cell',
+      'verticalAlign':'bottom'
+    }
+
+    const dateStyles = {
+    }
+
+    // TODO: data-importance
+    return (<div style={barStyles} data-count={txns ? txns.length : 0} data-spend={totalSpend}>
+      {txns && txns.map(function(txn){
+        return (<div
+          style={{
+            'height':txn.amounts.amount/20000+'px',
+            'backgroundColor':'red',
+            'margin':'1px 2px',
+          }}
+          key={txn.uuid}
+          data-uuid={txn.uuid}
+          data-amount={txn.amounts.amount/10000}
+        >
+        </div>)
+      })}
     </div>)
   }
 });
