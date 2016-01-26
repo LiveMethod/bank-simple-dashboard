@@ -91,14 +91,42 @@
 	      }
 	    }.bind(this));
 	  },
+
+	  // TODO - this should loop through txns and look up
+	  // notes by UUID. There may be a way to make the API
+	  // accept an array of uuids instead of doing like 300
+	  // individual lookups.
 	  getNotesForTxns: function getNotesForTxns() {
-	    var notesApi = '/api/notes';
+
+	    // this is a funky way to do this, but it works.
+
+	    // mongo's find many expects an array, and a fast
+	    // way to send an array via url queries is something
+	    // like endpoint&a=1&a=2 which will be interpreted as
+	    // a=[1,2] on the backend.
+
+	    // given the above, loop through all the txns, get the
+	    // uuids, and concat them into the ugliest string ever.
+
+	    var txnUuidArray = '';
+	    for (var t in this.state.txns) {
+	      var leadingChar = '';
+	      t == 0 ? leadingChar = '?' : leadingChar = '&';
+	      var tempUuid = this.state.txns[t].uuid;
+
+	      txnUuidArray += leadingChar + 'array=' + tempUuid;
+	    }
+	    // console.log(txnUuidArray);
+	    var notesApi = '/api/notes/array/' + txnUuidArray;
+	    console.log('calling ', notesApi);
+
 	    _jquery2.default.get(notesApi, function (data) {
 	      if (this.isMounted()) {
+	        console.log(data);
 	        this.setState({
 	          notes: data
 	        });
-	        console.log(this.state.notes);
+	        // console.log(this.state.notes);
 	      }
 	    }.bind(this));
 	  },

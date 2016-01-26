@@ -23,6 +23,21 @@ router.get('/', function(req, res, next) {
   });
 });
 
+// Get all notes that match IDs in a given array
+router.get('/array/', function(req, res, next) {
+  var query = {'transaction_uuid': { $in: req.query.array} };
+
+  console.log('query = ',query);
+  Note.find(query, function(err, notes){
+    if(err){
+      console.log('error when fetching all notes: ', err)
+      return next(err);
+    }
+    console.log('Returning all notes from an array: ');
+    res.json(notes);
+  });
+});
+
 // Create or update a single note
 router.post('/', function(req, res, next) {
   // query for a note with given uuid
