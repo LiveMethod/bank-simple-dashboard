@@ -60,18 +60,25 @@
 
 	var _reactMotion = __webpack_require__(160);
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	var _PiePanel = __webpack_require__(176);
 
-	// =========================================
-	// App
-	// ----
-	// Fetches transaction data from api and renders dashboard
-	// =========================================
+	var _PiePanel2 = _interopRequireDefault(_PiePanel);
+
+	var _BarPanel = __webpack_require__(177);
+
+	var _BarPanel2 = _interopRequireDefault(_BarPanel);
+
+	var _SliverPanel = __webpack_require__(178);
+
+	var _SliverPanel2 = _interopRequireDefault(_SliverPanel);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var ReactApp = _react2.default.createClass({
 	  displayName: 'ReactApp',
 	  getInitialState: function getInitialState() {
 	    return {
+	      monthlyBudget: 6500,
 	      targetYear: '2016',
 	      targetMonth: '01',
 	      notes: {},
@@ -80,7 +87,6 @@
 	  },
 	  getTxnsForMonth: function getTxnsForMonth() {
 	    var txnsApi = '/api/transactions?y=' + this.state.targetYear + '&m=' + this.state.targetMonth;
-	    console.log('txnsApi');
 	    _jquery2.default.get(txnsApi, function (data) {
 	      if (this.isMounted()) {
 	        this.setState({
@@ -91,11 +97,6 @@
 	      }
 	    }.bind(this));
 	  },
-
-	  // TODO - this should loop through txns and look up
-	  // notes by UUID. There may be a way to make the API
-	  // accept an array of uuids instead of doing like 300
-	  // individual lookups.
 	  getNotesForTxns: function getNotesForTxns() {
 
 	    // this is a funky way to do this, but it works.
@@ -118,13 +119,14 @@
 	    }
 	    // console.log(txnUuidArray);
 	    var notesApi = '/api/notes/array/' + txnUuidArray;
-	    console.log('calling ', notesApi);
+	    // console.log('calling ', notesApi)
 
 	    _jquery2.default.get(notesApi, function (data) {
 	      if (this.isMounted()) {
-	        console.log(data);
+	        // console.log(data);
 	        this.setState({
-	          notes: data
+	          // there are no notes for any txns yet,
+	          // so the exact mechanics of this are TBD
 	        });
 	        // console.log(this.state.notes);
 	      }
@@ -139,14 +141,16 @@
 	    return _react2.default.createElement(
 	      'div',
 	      null,
-	      _react2.default.createElement(
-	        'h1',
-	        null,
-	        'YEAH'
-	      )
+	      _react2.default.createElement(_PiePanel2.default, { state: this.state }),
+	      _react2.default.createElement(_BarPanel2.default, { state: this.state }),
+	      _react2.default.createElement(_SliverPanel2.default, { state: this.state })
 	    );
 	  }
-	});
+	}); // =========================================
+	// App
+	// ----
+	// Fetches transaction data from api and renders dashboard
+	// =========================================
 
 	_reactDom2.default.render(_react2.default.createElement(ReactApp, null), document.getElementById('appContainer'));
 
@@ -30822,6 +30826,311 @@
 	}
 
 	module.exports = exports["default"];
+
+/***/ },
+/* 176 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactMotion = __webpack_require__(160);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	/*
+
+	Scratch:
+
+	info needed for the pie panel:
+
+	spend (all debit transactions added)
+
+	saved (budget - spend)
+	saved %: saved/budget
+
+	possible saved (budet - necessary spend)
+	possible %: possible/budget
+
+	efficiency: saved/possible
+
+	*/
+
+	// =========================================
+	// PiePanel
+	// ----
+	// Contains overal monthly expendature as a
+	// pie graph and numerical breakdown
+	// =========================================
+
+	var PiePanel = _react2.default.createClass({
+	  displayName: 'PiePanel',
+
+	  render: function render() {
+	    var txns = this.props.state.txns;
+	    var budget = this.props.state.monthlyBudget;
+
+	    var totalSpend = 0;
+	    // add every debit event to the monthly spend
+	    for (var i in txns) {
+	      if (txns[i].bookkeeping_type == 'debit') {
+	        totalSpend += txns[i].amounts.amount / 10000;
+	      }
+	    }
+
+	    // FIXME: when notes actually work, calculate this.
+	    // In the interim, it's fake
+	    var importantSpend = 2500;
+
+	    var savedCash = budget - totalSpend;
+	    var savedPct = savedCash / budget;
+
+	    var possibleSavedCash = budget - importantSpend;
+	    var possibleSavedPct = possibleSavedCash / budget;
+
+	    var efficiency = savedCash / possibleSavedCash;
+
+	    return _react2.default.createElement(
+	      'ul',
+	      null,
+	      _react2.default.createElement(PieStat, {
+	        description: 'Saved',
+	        leftContent: '$' + savedCash,
+	        rightContent: savedPct + '%'
+	      }),
+	      _react2.default.createElement(PieStat, {
+	        description: 'Of A Possible',
+	        leftContent: '$' + possibleSavedCash,
+	        rightContent: possibleSavedPct + '%'
+	      }),
+	      _react2.default.createElement(PieStat, {
+	        description: 'Total',
+	        leftContent: 'Efficiency',
+	        rightContent: efficiency
+	      })
+	    );
+	  }
+	});
+
+	// a ruled list item, displayed beside pie chart
+	var PieStat = _react2.default.createClass({
+	  displayName: 'PieStat',
+
+	  render: function render() {
+	    return _react2.default.createElement(
+	      'li',
+	      { className: 'pie-stat' },
+	      _react2.default.createElement(
+	        'p',
+	        null,
+	        this.props.description
+	      ),
+	      _react2.default.createElement(
+	        'h2',
+	        null,
+	        this.props.leftContent
+	      ),
+	      _react2.default.createElement(
+	        'h2',
+	        null,
+	        this.props.rightContent
+	      ),
+	      _react2.default.createElement('hr', null)
+	    );
+	  }
+	});
+
+	exports.default = PiePanel;
+
+/***/ },
+/* 177 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactMotion = __webpack_require__(160);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	/*
+
+	Scratch:
+
+	bar panel data model could look like:
+
+	[
+	  {
+	    date: 2016-01-01,
+	    //dailySpend: 302, // dont calc this on create, its a pain
+	    txns:[
+	      {txn},
+	      {txn},
+	      ...
+	    ],
+	  },
+	  ...
+	]
+	*/
+
+	// =========================================
+	// BarPanel
+	// ----
+	// Contains a bar graph of spend by day
+	// =========================================
+
+	var BarPanel = _react2.default.createClass({
+	  displayName: 'BarPanel',
+
+	  render: function render() {
+	    var txns = this.props.state.txns;
+
+	    var targetMonth = this.props.state.targetMonth;
+	    var targetYear = this.props.state.targetYear;
+
+	    var graphData = [];
+
+	    // loop through transactions, adding or updating
+	    // the graphData for that txn's day
+	    for (var i in txns) {
+	      if (txns[i].bookkeeping_type == 'debit') {
+	        var txnDateTime = txns[i].times.when_recorded_local;
+	        var txnDate = txnDateTime.split(' ')[0];
+
+	        // check for existing graphData objects w/ this date
+	        var hasThisDate = graphData.filter(function (val, index, array) {
+	          // returns array of matches (should only ever be one)
+	          return val.date === txnDate;
+	        });
+
+	        // if a graphData object w/ this date exists
+	        if (hasThisDate.length > 0) {
+	          // push this transaction into the days array
+	          hasThisDate[0].txns.push(txns[i]);
+	          // else create one w/ this date and txn
+	        } else {
+	            graphData.push({
+	              date: txnDate,
+	              txns: [txns[i]]
+	            });
+	          }
+	      }
+	    }
+
+	    for (var j in graphData) {
+	      var totalSpend = 0;
+	      for (var k in graphData[j].txns) {
+	        totalSpend += graphData[j].txns[k].amounts.amount;
+	      }
+	      // console.log(graphData[j].date + ": spent $" + totalSpend/10000);
+	    }
+
+	    function twoDigit(n) {
+	      return n > 9 ? "" + n : "0" + n;
+	    }
+
+	    // FIXME: this is a fucking abomination
+	    return _react2.default.createElement(
+	      'div',
+	      null,
+	      Array.apply(0, Array(31)).map(function (x, i) {
+
+	        var target = targetYear + '-' + targetMonth + '-' + twoDigit(i + 1);
+	        var thisDate = graphData.filter(function (val, index, array) {
+	          return val.date == target;
+	        })[0];
+	        var txnsForDate = undefined;
+	        if (thisDate != undefined) {
+	          txnsForDate = thisDate.txns;
+	        }
+
+	        return _react2.default.createElement(GraphBar, {
+	          date: target,
+	          txns: txnsForDate,
+
+	          key: i + 1
+	        });
+	      })
+	    );
+	  }
+	});
+
+	var GraphBar = _react2.default.createClass({
+	  displayName: 'GraphBar',
+
+	  render: function render() {
+
+	    // const txns = this.props.txns;
+	    // if(txns != undefined){
+	    //   console.log(txns);
+	    // }
+	    console.log(this.props.txns);
+	    return _react2.default.createElement(
+	      'div',
+	      null,
+	      this.props.date,
+	      this.props.txns ? 'txns: ' + this.props.txns.length : 'no transactions'
+	    );
+	  }
+	});
+	exports.default = BarPanel;
+
+/***/ },
+/* 178 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactMotion = __webpack_require__(160);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	// =========================================
+	// SliverPanel
+	// ----
+	// Contains graph of slivers showing size and
+	// importance of transactions against budget
+	// =========================================
+
+	var SliverPanel = _react2.default.createClass({
+	  displayName: 'SliverPanel',
+
+	  render: function render() {
+	    return _react2.default.createElement(
+	      'div',
+	      null,
+	      _react2.default.createElement(
+	        'h1',
+	        null,
+	        'Sliver Panel'
+	      )
+	    );
+	  }
+	});
+
+	exports.default = SliverPanel;
 
 /***/ }
 /******/ ]);

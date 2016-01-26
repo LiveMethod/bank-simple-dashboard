@@ -8,10 +8,14 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import $ from 'jquery';
 import {Motion, spring} from 'react-motion';
+import PiePanel from './components/PiePanel.jsx'
+import BarPanel from './components/BarPanel.jsx'
+import SliverPanel from './components/SliverPanel.jsx'
 
 const ReactApp = React.createClass ({
   getInitialState() {
     return {
+      monthlyBudget: 6500,
       targetYear: '2016',
       targetMonth: '01',
       notes: {},
@@ -32,10 +36,6 @@ const ReactApp = React.createClass ({
     }.bind(this));
   },
 
-  // TODO - this should loop through txns and look up
-  // notes by UUID. There may be a way to make the API
-  // accept an array of uuids instead of doing like 300
-  // individual lookups.
   getNotesForTxns(){
 
     // this is a funky way to do this, but it works.
@@ -58,13 +58,14 @@ const ReactApp = React.createClass ({
     }
     // console.log(txnUuidArray);
     const notesApi = '/api/notes/array/' + txnUuidArray;
-    console.log('calling ', notesApi)
+    // console.log('calling ', notesApi)
 
     $.get(notesApi, function(data){
       if(this.isMounted()){
-        console.log(data);
+        // console.log(data);
         this.setState({
-          notes: data,
+          // there are no notes for any txns yet,
+          // so the exact mechanics of this are TBD
         });
         // console.log(this.state.notes);
       }
@@ -79,7 +80,9 @@ const ReactApp = React.createClass ({
 
     return(
       <div>
-        <h1>YEAH</h1>
+        <PiePanel state={this.state}/>
+        <BarPanel state={this.state}/>
+        <SliverPanel state={this.state}/>
       </div>
     )
   }
