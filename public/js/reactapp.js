@@ -72,7 +72,17 @@
 
 	var _SliverPanel2 = _interopRequireDefault(_SliverPanel);
 
+	var _SideBar = __webpack_require__(179);
+
+	var _SideBar2 = _interopRequireDefault(_SideBar);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	// =========================================
+	// App
+	// ----
+	// Fetches transaction data from api and renders dashboard
+	// =========================================
 
 	var ReactApp = _react2.default.createClass({
 	  displayName: 'ReactApp',
@@ -101,13 +111,14 @@
 
 	    // this is a funky way to do this, but it works.
 
-	    // mongo's find many expects an array, and a fast
+	    // mongo's findMany expects an array, and a fast
 	    // way to send an array via url queries is something
-	    // like endpoint&a=1&a=2 which will be interpreted as
+	    // like endpoint?a=1&a=2 which will be interpreted as
 	    // a=[1,2] on the backend.
 
-	    // given the above, loop through all the txns, get the
-	    // uuids, and concat them into the ugliest string ever.
+	    // given the above, this loops through all the txns, gets the
+	    // uuids, and concats them into the ugliest string ever to get
+	    // every note that corresponds to a TXN UUID in the current result set
 
 	    var txnUuidArray = '';
 	    for (var t in this.state.txns) {
@@ -123,34 +134,49 @@
 
 	    _jquery2.default.get(notesApi, function (data) {
 	      if (this.isMounted()) {
-	        // console.log(data);
+	        console.log('notes data from reactapp.js: ', data);
 	        this.setState({
-	          // there are no notes for any txns yet,
-	          // so the exact mechanics of this are TBD
+	          notes: data
 	        });
+	        // there are no notes for any txns yet,
+	        // so the exact mechanics of this are TBD
+	        this.calculateUntaggedTransactions();
 	        // console.log(this.state.notes);
 	      }
 	    }.bind(this));
+	  },
+	  calculateUntaggedTransactions: function calculateUntaggedTransactions() {
+	    // start with an array of all transactions
+	    // for each note, slice out the txn with that uuid
+	    // from the larger group
 	  },
 	  componentDidMount: function componentDidMount() {
 	    this.getTxnsForMonth();
 	  },
 
 	  render: function render() {
+	    var wrapStyles = {
+	      width: '100%',
+	      display: 'flex',
+	      flexDirection: 'row',
+	      backgroundColor: 'yellow',
+	      overflow: 'hidden'
+	    };
 
 	    return _react2.default.createElement(
 	      'div',
-	      null,
-	      _react2.default.createElement(_PiePanel2.default, { state: this.state }),
-	      _react2.default.createElement(_BarPanel2.default, { state: this.state }),
-	      _react2.default.createElement(_SliverPanel2.default, { state: this.state })
+	      { style: wrapStyles },
+	      _react2.default.createElement(
+	        'div',
+	        { style: { flex: 3 } },
+	        _react2.default.createElement(_PiePanel2.default, { state: this.state }),
+	        _react2.default.createElement(_BarPanel2.default, { state: this.state }),
+	        _react2.default.createElement(_SliverPanel2.default, { state: this.state })
+	      ),
+	      _react2.default.createElement(_SideBar2.default, { state: this.state })
 	    );
 	  }
-	}); // =========================================
-	// App
-	// ----
-	// Fetches transaction data from api and renders dashboard
-	// =========================================
+	});
 
 	_reactDom2.default.render(_react2.default.createElement(ReactApp, null), document.getElementById('appContainer'));
 
@@ -31154,6 +31180,84 @@
 	});
 
 	exports.default = SliverPanel;
+
+/***/ },
+/* 179 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactMotion = __webpack_require__(160);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	// =========================================
+	// SideBar
+	// ----
+	// Contains a list of unrated transactions
+	// =========================================
+
+	var SideBar = _react2.default.createClass({
+	  displayName: 'SideBar',
+
+	  render: function render() {
+	    var sideBarStyles = {
+	      backgroundColor: 'red',
+	      width: '100%',
+	      display: 'flex',
+	      flex: 1,
+	      flexDirection: 'column'
+	    };
+	    // <UntaggedTransactionList style={sideBarStyles} />
+	    return _react2.default.createElement(
+	      'h1',
+	      null,
+	      'fuuu'
+	    );
+	  }
+	});
+
+	var UntaggedTransactionList = _react2.default.createClass({
+	  displayName: 'UntaggedTransactionList',
+
+	  render: function render() {
+	    return _react2.default.createElement(
+	      'div',
+	      null,
+	      transactions.map(function (txn) {
+	        _react2.default.createElement(UntaggedTransactionSlice, null);
+	      })
+	    );
+	  }
+	});
+
+	var UntaggedTransactionSlice = _react2.default.createClass({
+	  displayName: 'UntaggedTransactionSlice',
+
+	  render: function render() {
+
+	    var sliceStyle = {
+	      backgroundColor: 'white',
+	      padding: '10px'
+	    };
+
+	    return _react2.default.createElement(
+	      'div',
+	      { style: sliceStyle },
+	      'Slice'
+	    );
+	  }
+	});
+
+	exports.default = SideBar;
 
 /***/ }
 /******/ ]);
