@@ -12,13 +12,15 @@ var index = require('./routes/index');
 var transactions = require('./routes/transactions');
 var notes = require('./routes/notes');
 
-expressLess = require('express-less');
+var expressLess = require('express-less');
 
 var expressApp = express();
 
 // these are just for the sketchy txn adding
 var mongoose = require('mongoose');
 var Transaction = require('./models/Transaction.js');
+
+var secrets = require('./secrets/secrets');
 
 // connect to mongodb
 mongoose.connect('mongodb://localhost/simple-bank-backend', function(err) {
@@ -57,8 +59,9 @@ var apiBase = 'https://bank.simple.com';
 var localhost = 'http://localhost:3000'
 var csrfRegex = /<meta name="_csrf" content="(.*)">/;
 
-user= // FIXME: pull from secrets dir
-pass= // FIXME: pull from secrets dir
+// login credentials for simple.com (stored in secrets dir)
+user = secrets.simpleUser;
+pass = secrets.simplePass;
 // cookie jar! Stores csrf and other session stuff
 jar = request.jar();
 
@@ -158,6 +161,9 @@ function addTransactionWithoutAPI(transaction){
 // Scrape all simple txns into the db
 // login(getTransactions);
 
+function confirmAwesomeness(){
+  console.log('confirmed: you are awesome');
+}
 
 // catch 404 and forward to error handler
 expressApp.use(function(req, res, next) {

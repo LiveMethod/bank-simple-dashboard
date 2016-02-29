@@ -42,11 +42,11 @@ const ReactApp = React.createClass ({
 
     // mongo's find many expects an array, and a fast
     // way to send an array via url queries is something
-    // like endpoint&a=1&a=2 which will be interpreted as
+    // like endpoint?a=1&a=2 which will be interpreted as
     // a=[1,2] on the backend.
 
-    // given the above, loop through all the txns, get the
-    // uuids, and concat them into the ugliest string ever.
+    // given the above, this loops through all the txns, gets the
+    // uuids, and concats them into the ugliest string ever.
 
     var txnUuidArray = '';
     for(var t in this.state.txns){
