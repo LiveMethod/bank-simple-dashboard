@@ -17,3 +17,5 @@ in window 1, run `mongod`
 
 in window 2, run `nodemon`.
   - you should get a confirmation that mongoose connected
+
+View at localhost:3000
