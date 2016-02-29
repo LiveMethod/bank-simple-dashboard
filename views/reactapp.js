@@ -19,8 +19,9 @@ const ReactApp = React.createClass ({
       monthlyBudget: 6500,
       targetYear: '2016',
       targetMonth: '01',
-      notes: {},
-      txns: {},
+      notes: [],
+      txns: [],
+      untagged: [],
     };
   },
 
@@ -80,6 +81,20 @@ const ReactApp = React.createClass ({
     // start with an array of all transactions
     // for each note, slice out the txn with that uuid
     // from the larger group
+
+    // an array of objects
+    var untaggedTransactions = this.state.txns;
+    console.log('matching txns for this many notes: ', this.state.notes.length);
+    console.log('untagged transactions length before filter:', untaggedTransactions.length);
+    for (var n in this.state.notes){
+      var target = this.state.notes[n].transaction_uuid;
+      var result = untaggedTransactions.filter(function(txn){return txn.uuid = target});
+      // splice out xhere depends on whether untaggedTransactions is an object or an array...
+    }
+    console.log('untagged transactions length after filter:', untaggedTransactions.length);
+    this.setState({
+      untagged: untaggedTransactions,
+    })
   },
 
   componentDidMount(){
@@ -98,12 +113,11 @@ const ReactApp = React.createClass ({
     return(
       <div style={wrapStyles}>
         
-        <div style={{flex: 3}}>
+        <div style={{width: '75%'}}>
           <PiePanel state={this.state}/>
           <BarPanel state={this.state}/>
           <SliverPanel state={this.state}/>
         </div>
-
         <SideBar state={this.state}/>
       </div>
     )

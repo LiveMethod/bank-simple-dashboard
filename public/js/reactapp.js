@@ -91,8 +91,9 @@
 	      monthlyBudget: 6500,
 	      targetYear: '2016',
 	      targetMonth: '01',
-	      notes: {},
-	      txns: {}
+	      notes: [],
+	      txns: [],
+	      untagged: []
 	    };
 	  },
 	  getTxnsForMonth: function getTxnsForMonth() {
@@ -149,6 +150,22 @@
 	    // start with an array of all transactions
 	    // for each note, slice out the txn with that uuid
 	    // from the larger group
+
+	    // an array of objects
+	    var untaggedTransactions = this.state.txns;
+	    console.log('matching txns for this many notes: ', this.state.notes.length);
+	    console.log('untagged transactions length before filter:', untaggedTransactions.length);
+	    for (var n in this.state.notes) {
+	      var target = this.state.notes[n].transaction_uuid;
+	      var result = untaggedTransactions.filter(function (txn) {
+	        return txn.uuid = target;
+	      });
+	      // splice out xhere depends on whether untaggedTransactions is an object or an array...
+	    }
+	    console.log('untagged transactions length after filter:', untaggedTransactions.length);
+	    this.setState({
+	      untagged: untaggedTransactions
+	    });
 	  },
 	  componentDidMount: function componentDidMount() {
 	    this.getTxnsForMonth();
@@ -168,7 +185,7 @@
 	      { style: wrapStyles },
 	      _react2.default.createElement(
 	        'div',
-	        { style: { flex: 3 } },
+	        { style: { width: '75%' } },
 	        _react2.default.createElement(_PiePanel2.default, { state: this.state }),
 	        _react2.default.createElement(_BarPanel2.default, { state: this.state }),
 	        _react2.default.createElement(_SliverPanel2.default, { state: this.state })
@@ -31211,16 +31228,19 @@
 	  render: function render() {
 	    var sideBarStyles = {
 	      backgroundColor: 'red',
-	      width: '100%',
+	      width: '25%',
+	      height: '100%',
+	      position: 'fixed',
 	      display: 'flex',
-	      flex: 1,
-	      flexDirection: 'column'
+	      flexDirection: 'column',
+	      padding: '10px',
+	      overflowY: 'scroll'
 	    };
 	    // <UntaggedTransactionList style={sideBarStyles} />
 	    return _react2.default.createElement(
-	      'h1',
-	      null,
-	      'fuuu'
+	      'div',
+	      { style: sideBarStyles },
+	      _react2.default.createElement(UntaggedTransactionList, { untagged: this.props.state.untagged })
 	    );
 	  }
 	});
@@ -31229,11 +31249,12 @@
 	  displayName: 'UntaggedTransactionList',
 
 	  render: function render() {
+	    console.log('untagged: ', this.props.untagged.length);
 	    return _react2.default.createElement(
 	      'div',
 	      null,
-	      transactions.map(function (txn) {
-	        _react2.default.createElement(UntaggedTransactionSlice, null);
+	      this.props.untagged.map(function (txn) {
+	        return _react2.default.createElement(UntaggedTransactionSlice, { transaction: txn, key: txn.uuid });
 	      })
 	    );
 	  }
@@ -31246,13 +31267,14 @@
 
 	    var sliceStyle = {
 	      backgroundColor: 'white',
-	      padding: '10px'
+	      padding: '10px',
+	      marginBottom: '10px'
 	    };
 
 	    return _react2.default.createElement(
 	      'div',
 	      { style: sliceStyle },
-	      'Slice'
+	      this.props.transaction.uuid
 	    );
 	  }
 	});

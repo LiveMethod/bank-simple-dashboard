@@ -11,24 +11,30 @@ const SideBar = React.createClass({
   render: function(){
     const sideBarStyles={
       backgroundColor: 'red',
-      width: '100%',
+      width: '25%',
+      height: '100%',
+      position: 'fixed',
       display: 'flex',
-      flex: 1,
       flexDirection: 'column',
+      padding: '10px',
+      overflowY: 'scroll',
     };
     // <UntaggedTransactionList style={sideBarStyles} />
     return(
-      <h1>fuuu</h1>
+      <div style={sideBarStyles}>
+        <UntaggedTransactionList untagged={this.props.state.untagged}/>
+      </div>
     );
   }
 });
 
 const UntaggedTransactionList = React.createClass({
   render: function(){
+    console.log('untagged: ', this.props.untagged.length)
     return(
       <div>
-        {transactions.map(function(txn) {
-          <UntaggedTransactionSlice />
+        {this.props.untagged.map(function(txn) {
+          return <UntaggedTransactionSlice transaction={txn} key={txn.uuid} />
         })}
       </div>
     );
@@ -41,11 +47,12 @@ const UntaggedTransactionSlice = React.createClass({
     const sliceStyle = {
       backgroundColor: 'white',
       padding: '10px',
+      marginBottom: '10px',
     }
 
     return(
       <div style={sliceStyle}>
-        Slice
+        {this.props.transaction.uuid}
       </div>
     );
   }
