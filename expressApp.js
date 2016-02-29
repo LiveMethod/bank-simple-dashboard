@@ -45,20 +45,12 @@ expressApp.use('/scrape', scraper);
 expressApp.use('/api/transactions', transactions);
 expressApp.use('/api/notes', notes);
 
-// test 3rd party scrape
-
-///////
-///////
-///////
-
 // catch 404 and forward to error handler
 expressApp.use(function(req, res, next) {
   var err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
-
-// error handlers
 
 // development error handler
 // will print stacktrace
@@ -81,6 +73,5 @@ expressApp.use(function(err, req, res, next) {
     error: {}
   });
 });
-
 
 module.exports = expressApp;

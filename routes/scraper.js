@@ -21,7 +21,6 @@ router.get('/', function(req, res, next) {
   login(getTransactions);
 });
 
-
 var apiBase = 'https://bank.simple.com';
 var localhost = 'http://localhost:3000'
 var csrfRegex = /<meta name="_csrf" content="(.*)">/;
