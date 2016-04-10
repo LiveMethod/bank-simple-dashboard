@@ -20,45 +20,45 @@ in window 2, run `nodemon`.
 
 View at localhost:3000
 
-# Notes
+## Notes
 
-## GET /notes/
+### GET /notes/
   Get all notes
 
-## GET /notes/array
+### GET /notes/array
   Takes array of transaction UUIDs as an array, gets all notes that match.
 
-## POST /notes/
+### POST /notes/
   Create or update a single note
 
-## GET /notes/:TRANSACTION_UUID
+### GET /notes/:TRANSACTION_UUID
   Gets a single note for a given transactionn UUID
 
-## PUT /notes/:TRANSACTION_UUID
+### PUT /notes/:TRANSACTION_UUID
   Updates a single note for a given transaction UUID
 
-## DELETE /notes/:TRANSACTION_UUID
+### DELETE /notes/:TRANSACTION_UUID
   Delete a single note for a given transaction UUID
 
-# Transactions
+## Transactions
 
-## GET /transactions/
+### GET /transactions/
   Get all transactions
 
-## POST /transactions/
+### POST /transactions/
   Create or update a single transaction
 
-## GET /transactions/:TRANSACTION_UUID
+### GET /transactions/:TRANSACTION_UUID
   Get a single transaction for a given transaction UUID
 
-## PUT /transactions/:TRANSACTION_UUID
+### PUT /transactions/:TRANSACTION_UUID
   Update a single transaction for a given transaction UUID
 
-## DELETE /transactions/:TRANSACTION_UUID
+### DELETE /transactions/:TRANSACTION_UUID
   Delete a single transaction for a given transaction UUID
 
-# Scraper
+## Scraper
 
-## GET /scrape/
+### GET /scrape/
   Logs in with credentials from secrets and downloads all TXNS from bank
   .simple.com
