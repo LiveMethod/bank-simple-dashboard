@@ -72,7 +72,7 @@ router.get('/:transaction_uuid', function(req, res, next) {
   });
 });
 
-// Update a single transaction with given bank uuid
+// Update a single note with given transaction uuid
 router.put('/:transaction_uuid', function(req, res, next) {
   var query = {transaction_uuid: req.params.transaction_uuid};
 
@@ -86,7 +86,7 @@ router.put('/:transaction_uuid', function(req, res, next) {
   });
 });
 
-// Delete a single note with a given bank uuid
+// Delete a single note with a given transaction uuid
 router.delete('/:transaction_uuid', function(req, res, next) {
   var query = {transaction_uuid: req.params.transaction_uuid};
 
