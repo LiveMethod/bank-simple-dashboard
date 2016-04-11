@@ -20,6 +20,8 @@ in window 2, run `nodemon`.
 
 View at localhost:3000
 
+Note: If you're modifying the front end, you'll also want to run `webpack --watch` in a 3rd window.
+
 ### Notes
 
 #### GET /notes/

@@ -96,6 +96,10 @@
 	      untagged: []
 	    };
 	  },
+
+	  /*
+	  * Calls the API with the month and year specified in the initial state
+	  */
 	  getTxnsForMonth: function getTxnsForMonth() {
 	    var txnsApi = '/api/transactions?y=' + this.state.targetYear + '&m=' + this.state.targetMonth;
 	    _jquery2.default.get(txnsApi, function (data) {
@@ -108,6 +112,11 @@
 	      }
 	    }.bind(this));
 	  },
+
+	  /*
+	  * Called after the transactions API call finishes.
+	  * Gets notes for each uuid in the transactions repsonse.
+	  */
 	  getNotesForTxns: function getNotesForTxns() {
 
 	    // this is a funky way to do this, but it works.
@@ -146,23 +155,39 @@
 	      }
 	    }.bind(this));
 	  },
+
+	  /*
+	  * populates the state.untagged array with only transactions
+	  * that have no corresponding note
+	  */
 	  calculateUntaggedTransactions: function calculateUntaggedTransactions() {
+	    // a transaction is untagged if it has no corresponding note.
 	    // start with an array of all transactions
 	    // for each note, slice out the txn with that uuid
 	    // from the larger group
 
-	    // an array of objects
+	    // an array of transaction objects
 	    var untaggedTransactions = this.state.txns;
-	    console.log('matching txns for this many notes: ', this.state.notes.length);
-	    console.log('untagged transactions length before filter:', untaggedTransactions.length);
+	    console.log('matching txns against ' + this.state.notes.length + ' notes');
+	    console.log(untaggedTransactions.length + ' transactions before filtration');
+	    console.log('filtering....');
+	    // for every note
 	    for (var n in this.state.notes) {
+	      console.log(n);
+	      // set the target to this iterations uuid
 	      var target = this.state.notes[n].transaction_uuid;
-	      var result = untaggedTransactions.filter(function (txn) {
-	        return txn.uuid = target;
+
+	      untaggedTransactions.filter(function (txn) {
+	        var match = txn.uuid === target;
+	        if (match) {
+	          console.log('Matched ' + txn.uuid);
+	          var matchIndex = untaggedTransactions.indexOf(txn);
+	          untaggedTransactions.splice(matchIndex, 1);
+	        };
+	        return match;
 	      });
-	      // splice out xhere depends on whether untaggedTransactions is an object or an array...
 	    }
-	    console.log('untagged transactions length after filter:', untaggedTransactions.length);
+	    console.log(untaggedTransactions.length + ' transactions after filtration');
 	    this.setState({
 	      untagged: untaggedTransactions
 	    });
@@ -183,13 +208,7 @@
 	    return _react2.default.createElement(
 	      'div',
 	      { style: wrapStyles },
-	      _react2.default.createElement(
-	        'div',
-	        { style: { width: '75%' } },
-	        _react2.default.createElement(_PiePanel2.default, { state: this.state }),
-	        _react2.default.createElement(_BarPanel2.default, { state: this.state }),
-	        _react2.default.createElement(_SliverPanel2.default, { state: this.state })
-	      ),
+	      _react2.default.createElement('div', { style: { width: '75%' } }),
 	      _react2.default.createElement(_SideBar2.default, { state: this.state })
 	    );
 	  }
@@ -31214,27 +31233,29 @@
 
 	var _reactMotion = __webpack_require__(160);
 
+	var _jquery = __webpack_require__(159);
+
+	var _jquery2 = _interopRequireDefault(_jquery);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	// =========================================
-	// SideBar
-	// ----
-	// Contains a list of unrated transactions
-	// =========================================
-
+	// TODO: consolidate sidebar and untaggedtransactionlist into one thing
+	// the div wrapping untaggedtransactionlist might as well be the sidebarstyles div
 	var SideBar = _react2.default.createClass({
 	  displayName: 'SideBar',
 
 	  render: function render() {
 	    var sideBarStyles = {
-	      backgroundColor: 'red',
+	      backgroundColor: '#E7E7F6',
 	      width: '25%',
 	      height: '100%',
 	      position: 'fixed',
 	      display: 'flex',
 	      flexDirection: 'column',
-	      padding: '10px',
+	      paddingTop: '10px',
+	      paddingBottom: '10px',
 	      overflowY: 'scroll'
+
 	    };
 	    // <UntaggedTransactionList style={sideBarStyles} />
 	    return _react2.default.createElement(
@@ -31243,7 +31264,11 @@
 	      _react2.default.createElement(UntaggedTransactionList, { untagged: this.props.state.untagged })
 	    );
 	  }
-	});
+	}); // =========================================
+	// SideBar
+	// ----
+	// Contains a list of unrated transactions
+	// =========================================
 
 	var UntaggedTransactionList = _react2.default.createClass({
 	  displayName: 'UntaggedTransactionList',
@@ -31260,6 +31285,109 @@
 	  }
 	});
 
+	var NecessityIndicators = _react2.default.createClass({
+	  displayName: 'NecessityIndicators',
+
+	  newNoteForTransaction: function newNoteForTransaction(uuid, necessity) {
+
+	    var notesApi = '/api/notes/';
+	    _jquery2.default.post(notesApi, { transaction_uuid: uuid, necessity: necessity }).done(function (data) {
+	      alert("noted! " + JSON.stringify(data));
+	    });
+	  },
+
+	  render: function render() {
+	    var _this = this;
+
+	    var indicatorStyle = {
+	      flex: 0,
+	      display: 'block',
+	      width: '28px',
+	      height: '28px',
+	      padding: '0px',
+	      background: 'rgba(208,1,27,0.75)',
+	      border: '4px solid #FFFFFF',
+	      boxShadow: '0px 3px 4px 0px rgba(0,0,0,0.10)'
+	    };
+	    var uuid = this.props.uuid;
+
+	    return _react2.default.createElement(
+	      'div',
+	      { style: { display: 'flex', flexDirection: 'row', justifyContent: 'space-between' } },
+	      _react2.default.createElement(
+	        'a',
+	        { href: '#', onClick: function onClick() {
+	            _this.newNoteForTransaction(uuid, 1);
+	          }, style: indicatorStyle },
+	        '1'
+	      ),
+	      _react2.default.createElement(
+	        'a',
+	        { href: '#', onClick: function onClick() {
+	            _this.newNoteForTransaction(uuid, 2);
+	          }, style: indicatorStyle },
+	        '2'
+	      ),
+	      _react2.default.createElement(
+	        'a',
+	        { href: '#', onClick: function onClick() {
+	            _this.newNoteForTransaction(uuid, 3);
+	          }, style: indicatorStyle },
+	        '3'
+	      ),
+	      _react2.default.createElement(
+	        'a',
+	        { href: '#', onClick: function onClick() {
+	            _this.newNoteForTransaction(uuid, 4);
+	          }, style: indicatorStyle },
+	        '4'
+	      ),
+	      _react2.default.createElement(
+	        'a',
+	        { href: '#', onClick: function onClick() {
+	            _this.newNoteForTransaction(uuid, 5);
+	          }, style: indicatorStyle },
+	        '5'
+	      ),
+	      _react2.default.createElement(
+	        'a',
+	        { href: '#', onClick: function onClick() {
+	            _this.newNoteForTransaction(uuid, 6);
+	          }, style: indicatorStyle },
+	        '6'
+	      ),
+	      _react2.default.createElement(
+	        'a',
+	        { href: '#', onClick: function onClick() {
+	            _this.newNoteForTransaction(uuid, 7);
+	          }, style: indicatorStyle },
+	        '7'
+	      ),
+	      _react2.default.createElement(
+	        'a',
+	        { href: '#', onClick: function onClick() {
+	            _this.newNoteForTransaction(uuid, 8);
+	          }, style: indicatorStyle },
+	        '8'
+	      ),
+	      _react2.default.createElement(
+	        'a',
+	        { href: '#', onClick: function onClick() {
+	            _this.newNoteForTransaction(uuid, 9);
+	          }, style: indicatorStyle },
+	        '9'
+	      ),
+	      _react2.default.createElement(
+	        'a',
+	        { href: '#', onClick: function onClick() {
+	            _this.newNoteForTransaction(uuid, 10);
+	          }, style: indicatorStyle },
+	        '10'
+	      )
+	    );
+	  }
+	});
+
 	var UntaggedTransactionSlice = _react2.default.createClass({
 	  displayName: 'UntaggedTransactionSlice',
 
@@ -31267,14 +31395,51 @@
 
 	    var sliceStyle = {
 	      backgroundColor: 'white',
+	      margin: '0 10px 10px 10px',
 	      padding: '10px',
-	      marginBottom: '10px'
+	      overflow: 'hidden',
+	      boxShadow: '0px 11px 10px 0px rgba(185,185,198,0.16), 0px 2px 4px 0px rgba(79,79,98,0.16)'
 	    };
+
+	    var _props$transaction = this.props.transaction;
+	    var _id = _props$transaction._id;
+	    var uuid = _props$transaction.uuid;
+	    var description = _props$transaction.description;
+	    var bookkeeping_type = _props$transaction.bookkeeping_type;
+
+	    var time = this.props.transaction.times.when_recorded_local;
+	    var price = this.props.transaction.amounts.amount / 10000;
+
+	    // don't make slices for events when money gets added
+	    // TODO: investigate positive balance events other than
+	    // credit, eg: returns, reversals, etc. Not sure what the
+	    // simple API returns for those ATM.
+
+	    if (bookkeeping_type === 'credit') {
+	      return null;
+	    }
 
 	    return _react2.default.createElement(
 	      'div',
-	      { style: sliceStyle },
-	      this.props.transaction.uuid
+	      { style: sliceStyle, 'data-id': _id, 'data-uuid': uuid },
+	      _react2.default.createElement(
+	        'p',
+	        null,
+	        uuid
+	      ),
+	      _react2.default.createElement(
+	        'p',
+	        null,
+	        _react2.default.createElement(
+	          'strong',
+	          null,
+	          '$',
+	          price
+	        ),
+	        ' ',
+	        description
+	      ),
+	      _react2.default.createElement(NecessityIndicators, { uuid: uuid })
 	    );
 	  }
 	});

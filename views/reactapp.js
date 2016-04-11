@@ -25,6 +25,9 @@ const ReactApp = React.createClass ({
     };
   },
 
+  /*
+  * Calls the API with the month and year specified in the initial state
+  */
   getTxnsForMonth(){
     const txnsApi = '/api/transactions?y=' + this.state.targetYear + '&m=' + this.state.targetMonth;
     $.get(txnsApi, function(data){
@@ -38,6 +41,10 @@ const ReactApp = React.createClass ({
     }.bind(this));
   },
 
+  /*
+  * Called after the transactions API call finishes.
+  * Gets notes for each uuid in the transactions repsonse.
+  */
   getNotesForTxns(){
 
     // this is a funky way to do this, but it works.
@@ -77,21 +84,38 @@ const ReactApp = React.createClass ({
     }.bind(this));
   },
 
+  /*
+  * populates the state.untagged array with only transactions
+  * that have no corresponding note
+  */
   calculateUntaggedTransactions(){
+    // a transaction is untagged if it has no corresponding note.
     // start with an array of all transactions
     // for each note, slice out the txn with that uuid
     // from the larger group
 
-    // an array of objects
+    // an array of transaction objects
     var untaggedTransactions = this.state.txns;
-    console.log('matching txns for this many notes: ', this.state.notes.length);
-    console.log('untagged transactions length before filter:', untaggedTransactions.length);
+    console.log('matching txns against ' +  this.state.notes.length + ' notes');
+    console.log(untaggedTransactions.length + ' transactions before filtration');
+    console.log('filtering....');
+    // for every note
     for (var n in this.state.notes){
+      console.log(n);
+      // set the target to this iterations uuid
       var target = this.state.notes[n].transaction_uuid;
-      var result = untaggedTransactions.filter(function(txn){return txn.uuid = target});
-      // splice out xhere depends on whether untaggedTransactions is an object or an array...
+      
+      untaggedTransactions.filter(function(txn){
+        var match = txn.uuid === target;
+        if(match){
+          console.log('Matched ' + txn.uuid);
+          var matchIndex = untaggedTransactions.indexOf(txn);
+          untaggedTransactions.splice(matchIndex, 1);
+        };
+        return match;
+      });
     }
-    console.log('untagged transactions length after filter:', untaggedTransactions.length);
+    console.log(untaggedTransactions.length + ' transactions after filtration');
     this.setState({
       untagged: untaggedTransactions,
     })
@@ -114,9 +138,10 @@ const ReactApp = React.createClass ({
       <div style={wrapStyles}>
         
         <div style={{width: '75%'}}>
-          <PiePanel state={this.state}/>
+          {/*<PiePanel state={this.state}/>
           <BarPanel state={this.state}/>
           <SliverPanel state={this.state}/>
+          */}
         </div>
         <SideBar state={this.state}/>
       </div>
