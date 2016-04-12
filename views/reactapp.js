@@ -143,7 +143,7 @@ const ReactApp = React.createClass ({
           <SliverPanel state={this.state}/>
           */}
         </div>
-        <SideBar state={this.state}/>
+        <SideBar state={this.state} refresh={() => {this.getTxnsForMonth.bind(this)}}/>
       </div>
     )
   }

@@ -197,6 +197,8 @@
 	  },
 
 	  render: function render() {
+	    var _this = this;
+
 	    var wrapStyles = {
 	      width: '100%',
 	      display: 'flex',
@@ -209,7 +211,9 @@
 	      'div',
 	      { style: wrapStyles },
 	      _react2.default.createElement('div', { style: { width: '75%' } }),
-	      _react2.default.createElement(_SideBar2.default, { state: this.state })
+	      _react2.default.createElement(_SideBar2.default, { state: this.state, refresh: function refresh() {
+	          _this.getTxnsForMonth.bind(_this);
+	        } })
 	    );
 	  }
 	});
@@ -31257,11 +31261,17 @@
 	      overflowY: 'scroll'
 
 	    };
-	    // <UntaggedTransactionList style={sideBarStyles} />
+	    // TODO: figure out why there needs to be a nested div here
 	    return _react2.default.createElement(
 	      'div',
 	      { style: sideBarStyles },
-	      _react2.default.createElement(UntaggedTransactionList, { untagged: this.props.state.untagged })
+	      _react2.default.createElement(
+	        'div',
+	        null,
+	        this.props.state.untagged.map(function (txn) {
+	          return _react2.default.createElement(UntaggedTransactionSlice, { transaction: txn, key: txn.uuid });
+	        })
+	      )
 	    );
 	  }
 	}); // =========================================
@@ -31285,8 +31295,8 @@
 	  }
 	});
 
-	var NecessityIndicators = _react2.default.createClass({
-	  displayName: 'NecessityIndicators',
+	var UntaggedTransactionSlice = _react2.default.createClass({
+	  displayName: 'UntaggedTransactionSlice',
 
 	  newNoteForTransaction: function newNoteForTransaction(uuid, necessity) {
 
@@ -31299,6 +31309,14 @@
 	  render: function render() {
 	    var _this = this;
 
+	    var sliceStyle = {
+	      backgroundColor: 'white',
+	      margin: '0 10px 10px 10px',
+	      padding: '10px',
+	      overflow: 'hidden',
+	      boxShadow: '0px 11px 10px 0px rgba(185,185,198,0.16), 0px 2px 4px 0px rgba(79,79,98,0.16)'
+	    };
+
 	    var indicatorStyle = {
 	      flex: 0,
 	      display: 'block',
@@ -31309,9 +31327,17 @@
 	      border: '4px solid #FFFFFF',
 	      boxShadow: '0px 3px 4px 0px rgba(0,0,0,0.10)'
 	    };
-	    var uuid = this.props.uuid;
 
-	    return _react2.default.createElement(
+	    var _props$transaction = this.props.transaction;
+	    var _id = _props$transaction._id;
+	    var uuid = _props$transaction.uuid;
+	    var description = _props$transaction.description;
+	    var bookkeeping_type = _props$transaction.bookkeeping_type;
+
+	    var time = this.props.transaction.times.when_recorded_local;
+	    var price = this.props.transaction.amounts.amount / 10000;
+
+	    var NecessityIndicators = _react2.default.createElement(
 	      'div',
 	      { style: { display: 'flex', flexDirection: 'row', justifyContent: 'space-between' } },
 	      _react2.default.createElement(
@@ -31385,30 +31411,6 @@
 	        '10'
 	      )
 	    );
-	  }
-	});
-
-	var UntaggedTransactionSlice = _react2.default.createClass({
-	  displayName: 'UntaggedTransactionSlice',
-
-	  render: function render() {
-
-	    var sliceStyle = {
-	      backgroundColor: 'white',
-	      margin: '0 10px 10px 10px',
-	      padding: '10px',
-	      overflow: 'hidden',
-	      boxShadow: '0px 11px 10px 0px rgba(185,185,198,0.16), 0px 2px 4px 0px rgba(79,79,98,0.16)'
-	    };
-
-	    var _props$transaction = this.props.transaction;
-	    var _id = _props$transaction._id;
-	    var uuid = _props$transaction.uuid;
-	    var description = _props$transaction.description;
-	    var bookkeeping_type = _props$transaction.bookkeeping_type;
-
-	    var time = this.props.transaction.times.when_recorded_local;
-	    var price = this.props.transaction.amounts.amount / 10000;
 
 	    // don't make slices for events when money gets added
 	    // TODO: investigate positive balance events other than
@@ -31418,6 +31420,8 @@
 	    if (bookkeeping_type === 'credit') {
 	      return null;
 	    }
+
+	    console.log(uuid);
 
 	    return _react2.default.createElement(
 	      'div',
@@ -31439,7 +31443,7 @@
 	        ' ',
 	        description
 	      ),
-	      _react2.default.createElement(NecessityIndicators, { uuid: uuid })
+	      NecessityIndicators
 	    );
 	  }
 	});

@@ -25,10 +25,14 @@ const SideBar = React.createClass({
       overflowY: 'scroll',
 
     };
-    // <UntaggedTransactionList style={sideBarStyles} />
+    // TODO: figure out why there needs to be a nested div here
     return(
       <div style={sideBarStyles}>
-        <UntaggedTransactionList untagged={this.props.state.untagged}/>
+        <div>
+          {this.props.state.untagged.map(function(txn) {
+            return <UntaggedTransactionSlice transaction={txn} key={txn.uuid} />
+          })}
+        </div>
       </div>
     );
   }
@@ -47,7 +51,8 @@ const UntaggedTransactionList = React.createClass({
   }
 });
 
-const NecessityIndicators = React.createClass({
+
+const UntaggedTransactionSlice = React.createClass({
   newNoteForTransaction: function(uuid, necessity){
 
     const notesApi = '/api/notes/';
@@ -58,6 +63,15 @@ const NecessityIndicators = React.createClass({
   },
 
   render: function(){
+
+    const sliceStyle = {
+      backgroundColor: 'white',
+      margin: '0 10px 10px 10px',
+      padding: '10px',
+      overflow: 'hidden',
+      boxShadow: '0px 11px 10px 0px rgba(185,185,198,0.16), 0px 2px 4px 0px rgba(79,79,98,0.16)',
+    }
+
     const indicatorStyle = {
       flex: 0,
       display: 'block',
@@ -68,9 +82,18 @@ const NecessityIndicators = React.createClass({
       border: '4px solid #FFFFFF',
       boxShadow: '0px 3px 4px 0px rgba(0,0,0,0.10)',
     }
-    const uuid = this.props.uuid;
 
-    return(
+    const {
+      _id,
+      uuid,
+      description,
+      bookkeeping_type,
+    } = this.props.transaction;
+
+    const time = this.props.transaction.times.when_recorded_local;
+    const price = this.props.transaction.amounts.amount/10000;
+
+    const NecessityIndicators = (
       <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
         <a href="#" onClick={ ()=>{this.newNoteForTransaction(uuid, 1)} } style={indicatorStyle}>1</a>
         <a href="#" onClick={ ()=>{this.newNoteForTransaction(uuid, 2)} } style={indicatorStyle}>2</a>
@@ -84,30 +107,6 @@ const NecessityIndicators = React.createClass({
         <a href="#" onClick={ ()=>{this.newNoteForTransaction(uuid, 10)} } style={indicatorStyle}>10</a>
       </div>
     );
-  }
-});
-
-const UntaggedTransactionSlice = React.createClass({
-  render: function(){
-
-    const sliceStyle = {
-      backgroundColor: 'white',
-      margin: '0 10px 10px 10px',
-      padding: '10px',
-      overflow: 'hidden',
-      boxShadow: '0px 11px 10px 0px rgba(185,185,198,0.16), 0px 2px 4px 0px rgba(79,79,98,0.16)',
-    }
-
-    const {
-      _id,
-      uuid,
-      description,
-      bookkeeping_type,
-    } = this.props.transaction;
-
-    const time = this.props.transaction.times.when_recorded_local;
-    const price = this.props.transaction.amounts.amount/10000;
-
 
     // don't make slices for events when money gets added
     // TODO: investigate positive balance events other than
@@ -118,12 +117,13 @@ const UntaggedTransactionSlice = React.createClass({
       return null;
     }
 
+    console.log(uuid);
 
     return(
       <div style={sliceStyle} data-id={_id} data-uuid={uuid}>
         <p>{uuid}</p>
         <p><strong>${price}</strong> {description}</p>
-        <NecessityIndicators uuid={uuid}/>
+        {NecessityIndicators}
       </div>
     );
   }
