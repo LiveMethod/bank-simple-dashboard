@@ -29,13 +29,14 @@ const ReactApp = React.createClass ({
   * Calls the API with the month and year specified in the initial state
   */
   getTxnsForMonth(){
+    console.log('called getTxnsForMonth');
     const txnsApi = '/api/transactions?y=' + this.state.targetYear + '&m=' + this.state.targetMonth;
     $.get(txnsApi, function(data){
       if(this.isMounted()){
         this.setState({
           txns: data,
         });
-        console.log('got txns');
+        // console.log('got txns');
         this.getNotesForTxns();
       }
     }.bind(this));
@@ -72,7 +73,7 @@ const ReactApp = React.createClass ({
 
     $.get(notesApi, function(data){
       if(this.isMounted()){
-        console.log('notes data from reactapp.js: ', data);
+        // console.log('notes data from reactapp.js: ', data);
         this.setState({
           notes: data,
           // there are no notes for any txns yet,
@@ -101,14 +102,13 @@ const ReactApp = React.createClass ({
     console.log('filtering....');
     // for every note
     for (var n in this.state.notes){
-      console.log(n);
       // set the target to this iterations uuid
       var target = this.state.notes[n].transaction_uuid;
       
       untaggedTransactions.filter(function(txn){
         var match = txn.uuid === target;
         if(match){
-          console.log('Matched ' + txn.uuid);
+          // console.log('Matched ' + txn.uuid);
           var matchIndex = untaggedTransactions.indexOf(txn);
           untaggedTransactions.splice(matchIndex, 1);
         };
@@ -143,7 +143,7 @@ const ReactApp = React.createClass ({
           <SliverPanel state={this.state}/>
           */}
         </div>
-        <SideBar state={this.state} refresh={() => {this.getTxnsForMonth.bind(this)}}/>
+        <SideBar state={this.state} refresh={() => {this.getTxnsForMonth()}}/>
       </div>
     )
   }

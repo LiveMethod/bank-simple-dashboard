@@ -101,13 +101,14 @@
 	  * Calls the API with the month and year specified in the initial state
 	  */
 	  getTxnsForMonth: function getTxnsForMonth() {
+	    console.log('called getTxnsForMonth');
 	    var txnsApi = '/api/transactions?y=' + this.state.targetYear + '&m=' + this.state.targetMonth;
 	    _jquery2.default.get(txnsApi, function (data) {
 	      if (this.isMounted()) {
 	        this.setState({
 	          txns: data
 	        });
-	        console.log('got txns');
+	        // console.log('got txns');
 	        this.getNotesForTxns();
 	      }
 	    }.bind(this));
@@ -144,7 +145,7 @@
 
 	    _jquery2.default.get(notesApi, function (data) {
 	      if (this.isMounted()) {
-	        console.log('notes data from reactapp.js: ', data);
+	        // console.log('notes data from reactapp.js: ', data);
 	        this.setState({
 	          notes: data
 	        });
@@ -173,14 +174,13 @@
 	    console.log('filtering....');
 	    // for every note
 	    for (var n in this.state.notes) {
-	      console.log(n);
 	      // set the target to this iterations uuid
 	      var target = this.state.notes[n].transaction_uuid;
 
 	      untaggedTransactions.filter(function (txn) {
 	        var match = txn.uuid === target;
 	        if (match) {
-	          console.log('Matched ' + txn.uuid);
+	          // console.log('Matched ' + txn.uuid);
 	          var matchIndex = untaggedTransactions.indexOf(txn);
 	          untaggedTransactions.splice(matchIndex, 1);
 	        };
@@ -212,7 +212,7 @@
 	      { style: wrapStyles },
 	      _react2.default.createElement('div', { style: { width: '75%' } }),
 	      _react2.default.createElement(_SideBar2.default, { state: this.state, refresh: function refresh() {
-	          _this.getTxnsForMonth.bind(_this);
+	          _this.getTxnsForMonth();
 	        } })
 	    );
 	  }
@@ -31245,6 +31245,12 @@
 
 	// TODO: consolidate sidebar and untaggedtransactionlist into one thing
 	// the div wrapping untaggedtransactionlist might as well be the sidebarstyles div
+	// =========================================
+	// SideBar
+	// ----
+	// Contains a list of unrated transactions
+	// =========================================
+
 	var SideBar = _react2.default.createClass({
 	  displayName: 'SideBar',
 
@@ -31261,6 +31267,9 @@
 	      overflowY: 'scroll'
 
 	    };
+
+	    var _refresh = this.props.refresh.bind(this);
+
 	    // TODO: figure out why there needs to be a nested div here
 	    return _react2.default.createElement(
 	      'div',
@@ -31269,52 +31278,82 @@
 	        'div',
 	        null,
 	        this.props.state.untagged.map(function (txn) {
-	          return _react2.default.createElement(UntaggedTransactionSlice, { transaction: txn, key: txn.uuid });
+	          return _react2.default.createElement(UntaggedTransactionSlice, { transaction: txn, key: txn.uuid, refresh: function refresh() {
+	              _refresh();
+	            } });
 	        })
 	      )
-	    );
-	  }
-	}); // =========================================
-	// SideBar
-	// ----
-	// Contains a list of unrated transactions
-	// =========================================
-
-	var UntaggedTransactionList = _react2.default.createClass({
-	  displayName: 'UntaggedTransactionList',
-
-	  render: function render() {
-	    console.log('untagged: ', this.props.untagged.length);
-	    return _react2.default.createElement(
-	      'div',
-	      null,
-	      this.props.untagged.map(function (txn) {
-	        return _react2.default.createElement(UntaggedTransactionSlice, { transaction: txn, key: txn.uuid });
-	      })
 	    );
 	  }
 	});
 
 	var UntaggedTransactionSlice = _react2.default.createClass({
 	  displayName: 'UntaggedTransactionSlice',
+	  getInitialState: function getInitialState() {
+	    return {
+	      isPending: false,
+	      shouldRetire: false,
+	      didRetire: false,
+	      anim: 1
+	    };
+	  },
+
+	  //
+	  getStyle: function getStyle(key) {
+	    if (this.state.shouldRetire && !this.state.didRetire) {
+	      var data = {
+	        anim: (0, _reactMotion.spring)(0, [90, 14]),
+	        height: (0, _reactMotion.spring)(0, [90, 14])
+	      };
+
+	      return data;
+	    } else {
+	      // should be 1 when not fading out
+	      return {
+	        anim: (0, _reactMotion.spring)(1, [90, 14]),
+	        height: (0, _reactMotion.spring)(100, [90, 14])
+	      };
+	    }
+	  },
+
+	  retireTransaction: function retireTransaction() {
+	    console.log('shitfuck');
+	    this.setState({ isRetired: true });
+	  },
 
 	  newNoteForTransaction: function newNoteForTransaction(uuid, necessity) {
+	    var _this = this;
+
+	    // set state to pending before making API call
+	    this.setState({ isPending: true });
 
 	    var notesApi = '/api/notes/';
+	    console.log('sending a note');
 	    _jquery2.default.post(notesApi, { transaction_uuid: uuid, necessity: necessity }).done(function (data) {
-	      alert("noted! " + JSON.stringify(data));
+	      console.log("noted! " + JSON.stringify(data));
+	      // TODO: make it not pending anymore
+	      _this.setState({ shouldRetire: true });
+	    }).fail(function (data) {
+	      console.log("Failed to create note: " + JSON.stringify(data.statusText));
+	      // this.setState({isPending: false});
+	      _this.setState({ shouldRetire: true });
 	    });
 	  },
 
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    console.log('uhhhhh');
+	  },
 	  render: function render() {
-	    var _this = this;
+	    var _this2 = this;
 
 	    var sliceStyle = {
 	      backgroundColor: 'white',
-	      margin: '0 10px 10px 10px',
 	      padding: '10px',
 	      overflow: 'hidden',
-	      boxShadow: '0px 11px 10px 0px rgba(185,185,198,0.16), 0px 2px 4px 0px rgba(79,79,98,0.16)'
+	      height: '100px',
+	      boxShadow: '0px 11px 10px 0px rgba(185,185,198,0.16), 0px 2px 4px 0px rgba(79,79,98,0.16)',
+	      // opacity is halved when an action is pending
+	      opacity: this.state.pending ? 0.5 : 1
 	    };
 
 	    var indicatorStyle = {
@@ -31343,70 +31382,70 @@
 	      _react2.default.createElement(
 	        'a',
 	        { href: '#', onClick: function onClick() {
-	            _this.newNoteForTransaction(uuid, 1);
+	            _this2.newNoteForTransaction(uuid, 1);
 	          }, style: indicatorStyle },
 	        '1'
 	      ),
 	      _react2.default.createElement(
 	        'a',
 	        { href: '#', onClick: function onClick() {
-	            _this.newNoteForTransaction(uuid, 2);
+	            _this2.newNoteForTransaction(uuid, 2);
 	          }, style: indicatorStyle },
 	        '2'
 	      ),
 	      _react2.default.createElement(
 	        'a',
 	        { href: '#', onClick: function onClick() {
-	            _this.newNoteForTransaction(uuid, 3);
+	            _this2.newNoteForTransaction(uuid, 3);
 	          }, style: indicatorStyle },
 	        '3'
 	      ),
 	      _react2.default.createElement(
 	        'a',
 	        { href: '#', onClick: function onClick() {
-	            _this.newNoteForTransaction(uuid, 4);
+	            _this2.newNoteForTransaction(uuid, 4);
 	          }, style: indicatorStyle },
 	        '4'
 	      ),
 	      _react2.default.createElement(
 	        'a',
 	        { href: '#', onClick: function onClick() {
-	            _this.newNoteForTransaction(uuid, 5);
+	            _this2.newNoteForTransaction(uuid, 5);
 	          }, style: indicatorStyle },
 	        '5'
 	      ),
 	      _react2.default.createElement(
 	        'a',
 	        { href: '#', onClick: function onClick() {
-	            _this.newNoteForTransaction(uuid, 6);
+	            _this2.newNoteForTransaction(uuid, 6);
 	          }, style: indicatorStyle },
 	        '6'
 	      ),
 	      _react2.default.createElement(
 	        'a',
 	        { href: '#', onClick: function onClick() {
-	            _this.newNoteForTransaction(uuid, 7);
+	            _this2.newNoteForTransaction(uuid, 7);
 	          }, style: indicatorStyle },
 	        '7'
 	      ),
 	      _react2.default.createElement(
 	        'a',
 	        { href: '#', onClick: function onClick() {
-	            _this.newNoteForTransaction(uuid, 8);
+	            _this2.newNoteForTransaction(uuid, 8);
 	          }, style: indicatorStyle },
 	        '8'
 	      ),
 	      _react2.default.createElement(
 	        'a',
 	        { href: '#', onClick: function onClick() {
-	            _this.newNoteForTransaction(uuid, 9);
+	            _this2.newNoteForTransaction(uuid, 9);
 	          }, style: indicatorStyle },
 	        '9'
 	      ),
 	      _react2.default.createElement(
 	        'a',
 	        { href: '#', onClick: function onClick() {
-	            _this.newNoteForTransaction(uuid, 10);
+	            _this2.newNoteForTransaction(uuid, 10);
 	          }, style: indicatorStyle },
 	        '10'
 	      )
@@ -31421,29 +31460,44 @@
 	      return null;
 	    }
 
-	    console.log(uuid);
+	    var refresh = this.props.refresh;
 
 	    return _react2.default.createElement(
-	      'div',
-	      { style: sliceStyle, 'data-id': _id, 'data-uuid': uuid },
-	      _react2.default.createElement(
-	        'p',
-	        null,
-	        uuid
-	      ),
-	      _react2.default.createElement(
-	        'p',
-	        null,
-	        _react2.default.createElement(
-	          'strong',
-	          null,
-	          '$',
-	          price
-	        ),
-	        ' ',
-	        description
-	      ),
-	      NecessityIndicators
+	      _reactMotion.Motion,
+	      {
+	        defaultStyle: { anim: 1, height: 100 },
+	        style: this.getStyle()
+	      },
+	      function (motion) {
+	        console.log(motion.anim);
+
+	        if (motion.anim <= 0) {
+	          // refresh();
+	          return null;
+	        };
+
+	        return _react2.default.createElement(
+	          'div',
+	          { style: { opacity: motion.anim, height: motion.height + 'px', margin: '0 10px 30px 10px' } },
+	          _react2.default.createElement(
+	            'div',
+	            { style: sliceStyle, 'data-id': _id, 'data-uuid': uuid },
+	            _react2.default.createElement(
+	              'p',
+	              null,
+	              _react2.default.createElement(
+	                'strong',
+	                null,
+	                '$',
+	                price
+	              ),
+	              ' ',
+	              description
+	            ),
+	            NecessityIndicators
+	          )
+	        );
+	      }
 	    );
 	  }
 	});

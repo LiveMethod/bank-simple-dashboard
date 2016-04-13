@@ -5,6 +5,7 @@
 // =========================================
 
 import React from 'react';
+import { Animated } from 'react';
 import {Motion, spring} from 'react-motion';
 import $ from 'jquery';
 
@@ -25,12 +26,15 @@ const SideBar = React.createClass({
       overflowY: 'scroll',
 
     };
+
+    const refresh = this.props.refresh.bind(this);
+
     // TODO: figure out why there needs to be a nested div here
     return(
       <div style={sideBarStyles}>
         <div>
           {this.props.state.untagged.map(function(txn) {
-            return <UntaggedTransactionSlice transaction={txn} key={txn.uuid} />
+            return <UntaggedTransactionSlice transaction={txn} key={txn.uuid} refresh={()=>{refresh()}} />
           })}
         </div>
       </div>
@@ -38,38 +42,74 @@ const SideBar = React.createClass({
   }
 });
 
-const UntaggedTransactionList = React.createClass({
-  render: function(){
-    console.log('untagged: ', this.props.untagged.length)
-    return(
-      <div>
-        {this.props.untagged.map(function(txn) {
-          return <UntaggedTransactionSlice transaction={txn} key={txn.uuid} />
-        })}
-      </div>
-    );
-  }
-});
-
-
 const UntaggedTransactionSlice = React.createClass({
+  getInitialState() {
+    return {
+      isPending: false,
+      shouldRetire: false,
+      didRetire: false,
+      anim: 1,
+    };
+  },
+
+  //
+  getStyle(key) {
+    if(this.state.shouldRetire && !this.state.didRetire){
+      const data = {
+        anim: spring(0, [90, 14]),
+        height: spring(0, [90, 14]),
+      };
+
+      return data;
+    }
+
+    else {
+      // should be 1 when not fading out
+      return {
+        anim: spring(1, [90, 14]),
+        height: spring(100, [90, 14]),
+      };
+    }
+  },
+
+  retireTransaction: function(){
+    console.log('shitfuck');
+    this.setState({isRetired: true});
+  },
+
   newNoteForTransaction: function(uuid, necessity){
+    // set state to pending before making API call
+    this.setState({isPending: true});
+
 
     const notesApi = '/api/notes/';
+    console.log('sending a note');
     $.post(notesApi, {transaction_uuid: uuid, necessity: necessity})
       .done((data)=>{
-        alert("noted! " + JSON.stringify(data));
+        console.log("noted! " + JSON.stringify(data));
+        // TODO: make it not pending anymore
+        this.setState({shouldRetire: true});
+      })
+      .fail((data)=>{
+        console.log("Failed to create note: " + JSON.stringify(data.statusText));
+        // this.setState({isPending: false});
+        this.setState({shouldRetire: true});
       });
   },
 
+  componentWillReceiveProps: function(nextProps) {
+    console.log('uhhhhh');
+  },
   render: function(){
 
     const sliceStyle = {
       backgroundColor: 'white',
-      margin: '0 10px 10px 10px',
       padding: '10px',
       overflow: 'hidden',
+      height: '100px',
       boxShadow: '0px 11px 10px 0px rgba(185,185,198,0.16), 0px 2px 4px 0px rgba(79,79,98,0.16)',
+      // opacity is halved when an action is pending
+      opacity: this.state.pending ? 0.5 : 1,
     }
 
     const indicatorStyle = {
@@ -117,14 +157,29 @@ const UntaggedTransactionSlice = React.createClass({
       return null;
     }
 
-    console.log(uuid);
+    const refresh = this.props.refresh;
 
     return(
-      <div style={sliceStyle} data-id={_id} data-uuid={uuid}>
-        <p>{uuid}</p>
-        <p><strong>${price}</strong> {description}</p>
-        {NecessityIndicators}
-      </div>
+      <Motion
+        defaultStyle={{anim: 1, height: 100}}
+        style={this.getStyle()}
+      >
+        {(motion) => {
+          console.log(motion.anim);
+
+          if(motion.anim <= 0){
+            // refresh();
+            return null;
+          };
+
+          return(<div style={{opacity: motion.anim, height: motion.height + 'px', margin: '0 10px 30px 10px',}}>
+            <div style={sliceStyle} data-id={_id} data-uuid={uuid}>
+              <p><strong>${price}</strong> {description}</p>
+              {NecessityIndicators}
+            </div>
+          </div>
+        )}}
+      </Motion>
     );
   }
 });
