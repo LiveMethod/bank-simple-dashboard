@@ -26,6 +26,9 @@ build/Release
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
 node_modules
 
+# Compiled JS
+public/js
+
 # Secrets
 # IF YOU MESS WITH THIS, KNOW WHAT YOU'RE DOING.
 secrets

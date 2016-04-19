@@ -147,7 +147,6 @@ const UntaggedTransactionSlice = React.createClass({
       backgroundColor: 'white',
       padding: '20px',
       overflow: 'hidden',
-      width: '220px',
       boxShadow: '0px 11px 10px 0px rgba(185,185,198,0.16), 0px 2px 4px 0px rgba(79,79,98,0.16)',
       // opacity is halved when an action is pending
       opacity: this.state.pending ? 0.5 : 1,
