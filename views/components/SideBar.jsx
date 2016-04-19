@@ -49,6 +49,7 @@ const UntaggedTransactionSlice = React.createClass({
       shouldRetire: false,
       didRetire: false,
       anim: 1,
+      dotHover: 0,
     };
   },
 
@@ -100,27 +101,56 @@ const UntaggedTransactionSlice = React.createClass({
   componentWillReceiveProps: function(nextProps) {
     console.log('uhhhhh');
   },
-  render: function(){
 
+  mouseOver: function(dotID){
+    this.setState({dotHover: dotID});
+  },
+
+  mouseOut: function(){
+    this.setState({dotHover: 0});
+  },
+
+  getIndicatorStyle: function(index){
+    const dotBackgrounds = {
+      0: '#F3F3F9',
+      1: '#A90000',
+      2: '#FD0000',
+      3: '#FF7100',
+      4: '#FFAE00',
+      5: '#FFDE00',
+      6: '#F4F502',
+      7: '#CEF70B',
+      8: '#8DF919',
+      9: '#28F023',
+      10: '#09D00A',
+    };
+
+    const dotColor = index <= this.state.dotHover 
+      ? dotBackgrounds[this.state.dotHover]
+      : dotBackgrounds[0];
+
+
+    return {
+      display: 'block',
+      width: '10px',
+      height: '10px',
+      marginTop: '20px',
+      borderRadius: '5px',
+      textDecoration: 'none',
+      background: dotColor,
+      boxShadow: 'inset 0px 1px 3px 0px rgba(126,126,215,0.28)',
+    };
+  },
+
+  render: function(){
     const sliceStyle = {
       backgroundColor: 'white',
-      padding: '10px',
+      padding: '20px',
       overflow: 'hidden',
-      height: '100px',
+      width: '220px',
       boxShadow: '0px 11px 10px 0px rgba(185,185,198,0.16), 0px 2px 4px 0px rgba(79,79,98,0.16)',
       // opacity is halved when an action is pending
       opacity: this.state.pending ? 0.5 : 1,
-    }
-
-    const indicatorStyle = {
-      flex: 0,
-      display: 'block',
-      width: '28px',
-      height: '28px',
-      padding: '0px',
-      background: 'rgba(208,1,27,0.75)',
-      border: '4px solid #FFFFFF',
-      boxShadow: '0px 3px 4px 0px rgba(0,0,0,0.10)',
     }
 
     const {
@@ -133,20 +163,6 @@ const UntaggedTransactionSlice = React.createClass({
     const time = this.props.transaction.times.when_recorded_local;
     const price = this.props.transaction.amounts.amount/10000;
 
-    const NecessityIndicators = (
-      <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
-        <a href="#" onClick={ ()=>{this.newNoteForTransaction(uuid, 1)} } style={indicatorStyle}>1</a>
-        <a href="#" onClick={ ()=>{this.newNoteForTransaction(uuid, 2)} } style={indicatorStyle}>2</a>
-        <a href="#" onClick={ ()=>{this.newNoteForTransaction(uuid, 3)} } style={indicatorStyle}>3</a>
-        <a href="#" onClick={ ()=>{this.newNoteForTransaction(uuid, 4)} } style={indicatorStyle}>4</a>
-        <a href="#" onClick={ ()=>{this.newNoteForTransaction(uuid, 5)} } style={indicatorStyle}>5</a>
-        <a href="#" onClick={ ()=>{this.newNoteForTransaction(uuid, 6)} } style={indicatorStyle}>6</a>
-        <a href="#" onClick={ ()=>{this.newNoteForTransaction(uuid, 7)} } style={indicatorStyle}>7</a>
-        <a href="#" onClick={ ()=>{this.newNoteForTransaction(uuid, 8)} } style={indicatorStyle}>8</a>
-        <a href="#" onClick={ ()=>{this.newNoteForTransaction(uuid, 9)} } style={indicatorStyle}>9</a>
-        <a href="#" onClick={ ()=>{this.newNoteForTransaction(uuid, 10)} } style={indicatorStyle}>10</a>
-      </div>
-    );
 
     // don't make slices for events when money gets added
     // TODO: investigate positive balance events other than
@@ -165,17 +181,110 @@ const UntaggedTransactionSlice = React.createClass({
         style={this.getStyle()}
       >
         {(motion) => {
-          console.log(motion.anim);
+          // console.log(motion.anim);
 
           if(motion.anim <= 0){
             // refresh();
             return null;
           };
-
+          
           return(<div style={{opacity: motion.anim, height: motion.height + 'px', margin: '0 10px 30px 10px',}}>
             <div style={sliceStyle} data-id={_id} data-uuid={uuid}>
-              <p><strong>${price}</strong> {description}</p>
-              {NecessityIndicators}
+              <strong>${price}</strong> {description}
+
+              <div className="sidebar__dotwrap" style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
+                <a 
+                  href="#"
+                  style={{flex: 1}}
+                  onClick={ ()=>{this.newNoteForTransaction(uuid, 1)} }
+                  onMouseOut={this.mouseOut}
+                  onMouseOver={ () => {this.mouseOver(1)} }
+                >
+                  <div style={this.getIndicatorStyle(1)} />
+                </a>
+                <a 
+                  href="#"
+                  style={{flex: 1}}
+                  onClick={ ()=>{this.newNoteForTransaction(uuid, 2)} }
+                  onMouseOut={this.mouseOut}
+                  onMouseOver={ () => {this.mouseOver(2)} }
+                >
+                  <div style={this.getIndicatorStyle(2)} />
+                </a>
+                <a 
+                  href="#"
+                  style={{flex: 1}}
+                  onClick={ ()=>{this.newNoteForTransaction(uuid, 3)} }
+                  onMouseOut={this.mouseOut}
+                  onMouseOver={ () => {this.mouseOver(3)} }
+                >
+                  <div style={this.getIndicatorStyle(3)} />
+                </a>
+                <a 
+                  href="#"
+                  style={{flex: 1}}
+                  onClick={ ()=>{this.newNoteForTransaction(uuid, 4)} }
+                  onMouseOut={this.mouseOut}
+                  onMouseOver={ () => {this.mouseOver(4)} }
+                >
+                  <div style={this.getIndicatorStyle(4)} />
+                </a>
+                <a 
+                  href="#"
+                  style={{flex: 1}}
+                  onClick={ ()=>{this.newNoteForTransaction(uuid, 5)} }
+                  onMouseOut={this.mouseOut}
+                  onMouseOver={ () => {this.mouseOver(5)} }
+                >
+                  <div style={this.getIndicatorStyle(5)} />
+                </a>
+                <a 
+                  href="#"
+                  style={{flex: 1}}
+                  onClick={ ()=>{this.newNoteForTransaction(uuid, 6)} }
+                  onMouseOut={this.mouseOut}
+                  onMouseOver={ () => {this.mouseOver(6)} }
+                >
+                  <div style={this.getIndicatorStyle(6)} />
+                </a>
+                <a 
+                  href="#"
+                  style={{flex: 1}}
+                  onClick={ ()=>{this.newNoteForTransaction(uuid, 7)} }
+                  onMouseOut={this.mouseOut}
+                  onMouseOver={ () => {this.mouseOver(7)} }
+                >
+                  <div style={this.getIndicatorStyle(7)} />
+                </a>
+                <a 
+                  href="#"
+                  style={{flex: 1}}
+                  onClick={ ()=>{this.newNoteForTransaction(uuid, 8)} }
+                  onMouseOut={this.mouseOut}
+                  onMouseOver={ () => {this.mouseOver(8)} }
+                >
+                  <div style={this.getIndicatorStyle(8)} />
+                </a>
+                <a 
+                  href="#"
+                  style={{flex: 1}}
+                  onClick={ ()=>{this.newNoteForTransaction(uuid, 9)} }
+                  onMouseOut={this.mouseOut}
+                  onMouseOver={ () => {this.mouseOver(9)} }
+                >
+                  <div style={this.getIndicatorStyle(9)} />
+                </a>
+                <a 
+                  href="#"
+                  style={{flex: 1}}
+                  onClick={ ()=>{this.newNoteForTransaction(uuid, 10)} }
+                  onMouseOut={this.mouseOut}
+                  onMouseOver={ () => {this.mouseOver(10)} }
+                >
+                  <div style={this.getIndicatorStyle(10)} />
+                </a>
+              </div>
+
             </div>
           </div>
         )}}

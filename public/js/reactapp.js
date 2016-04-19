@@ -31294,7 +31294,8 @@
 	      isPending: false,
 	      shouldRetire: false,
 	      didRetire: false,
-	      anim: 1
+	      anim: 1,
+	      dotHover: 0
 	    };
 	  },
 
@@ -31343,28 +31344,55 @@
 	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
 	    console.log('uhhhhh');
 	  },
+
+	  mouseOver: function mouseOver(dotID) {
+	    this.setState({ dotHover: dotID });
+	  },
+
+	  mouseOut: function mouseOut() {
+	    this.setState({ dotHover: 0 });
+	  },
+
+	  getIndicatorStyle: function getIndicatorStyle(index) {
+	    var dotBackgrounds = {
+	      0: '#F3F3F9',
+	      1: '#A90000',
+	      2: '#FD0000',
+	      3: '#FF7100',
+	      4: '#FFAE00',
+	      5: '#FFDE00',
+	      6: '#F4F502',
+	      7: '#CEF70B',
+	      8: '#8DF919',
+	      9: '#28F023',
+	      10: '#09D00A'
+	    };
+
+	    var dotColor = index <= this.state.dotHover ? dotBackgrounds[this.state.dotHover] : dotBackgrounds[0];
+
+	    return {
+	      display: 'block',
+	      width: '10px',
+	      height: '10px',
+	      marginTop: '20px',
+	      borderRadius: '5px',
+	      textDecoration: 'none',
+	      background: dotColor,
+	      boxShadow: 'inset 0px 1px 3px 0px rgba(126,126,215,0.28)'
+	    };
+	  },
+
 	  render: function render() {
 	    var _this2 = this;
 
 	    var sliceStyle = {
 	      backgroundColor: 'white',
-	      padding: '10px',
+	      padding: '20px',
 	      overflow: 'hidden',
-	      height: '100px',
+	      width: '220px',
 	      boxShadow: '0px 11px 10px 0px rgba(185,185,198,0.16), 0px 2px 4px 0px rgba(79,79,98,0.16)',
 	      // opacity is halved when an action is pending
 	      opacity: this.state.pending ? 0.5 : 1
-	    };
-
-	    var indicatorStyle = {
-	      flex: 0,
-	      display: 'block',
-	      width: '28px',
-	      height: '28px',
-	      padding: '0px',
-	      background: 'rgba(208,1,27,0.75)',
-	      border: '4px solid #FFFFFF',
-	      boxShadow: '0px 3px 4px 0px rgba(0,0,0,0.10)'
 	    };
 
 	    var _props$transaction = this.props.transaction;
@@ -31375,81 +31403,6 @@
 
 	    var time = this.props.transaction.times.when_recorded_local;
 	    var price = this.props.transaction.amounts.amount / 10000;
-
-	    var NecessityIndicators = _react2.default.createElement(
-	      'div',
-	      { style: { display: 'flex', flexDirection: 'row', justifyContent: 'space-between' } },
-	      _react2.default.createElement(
-	        'a',
-	        { href: '#', onClick: function onClick() {
-	            _this2.newNoteForTransaction(uuid, 1);
-	          }, style: indicatorStyle },
-	        '1'
-	      ),
-	      _react2.default.createElement(
-	        'a',
-	        { href: '#', onClick: function onClick() {
-	            _this2.newNoteForTransaction(uuid, 2);
-	          }, style: indicatorStyle },
-	        '2'
-	      ),
-	      _react2.default.createElement(
-	        'a',
-	        { href: '#', onClick: function onClick() {
-	            _this2.newNoteForTransaction(uuid, 3);
-	          }, style: indicatorStyle },
-	        '3'
-	      ),
-	      _react2.default.createElement(
-	        'a',
-	        { href: '#', onClick: function onClick() {
-	            _this2.newNoteForTransaction(uuid, 4);
-	          }, style: indicatorStyle },
-	        '4'
-	      ),
-	      _react2.default.createElement(
-	        'a',
-	        { href: '#', onClick: function onClick() {
-	            _this2.newNoteForTransaction(uuid, 5);
-	          }, style: indicatorStyle },
-	        '5'
-	      ),
-	      _react2.default.createElement(
-	        'a',
-	        { href: '#', onClick: function onClick() {
-	            _this2.newNoteForTransaction(uuid, 6);
-	          }, style: indicatorStyle },
-	        '6'
-	      ),
-	      _react2.default.createElement(
-	        'a',
-	        { href: '#', onClick: function onClick() {
-	            _this2.newNoteForTransaction(uuid, 7);
-	          }, style: indicatorStyle },
-	        '7'
-	      ),
-	      _react2.default.createElement(
-	        'a',
-	        { href: '#', onClick: function onClick() {
-	            _this2.newNoteForTransaction(uuid, 8);
-	          }, style: indicatorStyle },
-	        '8'
-	      ),
-	      _react2.default.createElement(
-	        'a',
-	        { href: '#', onClick: function onClick() {
-	            _this2.newNoteForTransaction(uuid, 9);
-	          }, style: indicatorStyle },
-	        '9'
-	      ),
-	      _react2.default.createElement(
-	        'a',
-	        { href: '#', onClick: function onClick() {
-	            _this2.newNoteForTransaction(uuid, 10);
-	          }, style: indicatorStyle },
-	        '10'
-	      )
-	    );
 
 	    // don't make slices for events when money gets added
 	    // TODO: investigate positive balance events other than
@@ -31469,7 +31422,7 @@
 	        style: this.getStyle()
 	      },
 	      function (motion) {
-	        console.log(motion.anim);
+	        // console.log(motion.anim);
 
 	        if (motion.anim <= 0) {
 	          // refresh();
@@ -31483,18 +31436,167 @@
 	            'div',
 	            { style: sliceStyle, 'data-id': _id, 'data-uuid': uuid },
 	            _react2.default.createElement(
-	              'p',
+	              'strong',
 	              null,
-	              _react2.default.createElement(
-	                'strong',
-	                null,
-	                '$',
-	                price
-	              ),
-	              ' ',
-	              description
+	              '$',
+	              price
 	            ),
-	            NecessityIndicators
+	            ' ',
+	            description,
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'sidebar__dotwrap', style: { display: 'flex', flexDirection: 'row', justifyContent: 'space-between' } },
+	              _react2.default.createElement(
+	                'a',
+	                {
+	                  href: '#',
+	                  style: { flex: 1 },
+	                  onClick: function onClick() {
+	                    _this2.newNoteForTransaction(uuid, 1);
+	                  },
+	                  onMouseOut: _this2.mouseOut,
+	                  onMouseOver: function onMouseOver() {
+	                    _this2.mouseOver(1);
+	                  }
+	                },
+	                _react2.default.createElement('div', { style: _this2.getIndicatorStyle(1) })
+	              ),
+	              _react2.default.createElement(
+	                'a',
+	                {
+	                  href: '#',
+	                  style: { flex: 1 },
+	                  onClick: function onClick() {
+	                    _this2.newNoteForTransaction(uuid, 2);
+	                  },
+	                  onMouseOut: _this2.mouseOut,
+	                  onMouseOver: function onMouseOver() {
+	                    _this2.mouseOver(2);
+	                  }
+	                },
+	                _react2.default.createElement('div', { style: _this2.getIndicatorStyle(2) })
+	              ),
+	              _react2.default.createElement(
+	                'a',
+	                {
+	                  href: '#',
+	                  style: { flex: 1 },
+	                  onClick: function onClick() {
+	                    _this2.newNoteForTransaction(uuid, 3);
+	                  },
+	                  onMouseOut: _this2.mouseOut,
+	                  onMouseOver: function onMouseOver() {
+	                    _this2.mouseOver(3);
+	                  }
+	                },
+	                _react2.default.createElement('div', { style: _this2.getIndicatorStyle(3) })
+	              ),
+	              _react2.default.createElement(
+	                'a',
+	                {
+	                  href: '#',
+	                  style: { flex: 1 },
+	                  onClick: function onClick() {
+	                    _this2.newNoteForTransaction(uuid, 4);
+	                  },
+	                  onMouseOut: _this2.mouseOut,
+	                  onMouseOver: function onMouseOver() {
+	                    _this2.mouseOver(4);
+	                  }
+	                },
+	                _react2.default.createElement('div', { style: _this2.getIndicatorStyle(4) })
+	              ),
+	              _react2.default.createElement(
+	                'a',
+	                {
+	                  href: '#',
+	                  style: { flex: 1 },
+	                  onClick: function onClick() {
+	                    _this2.newNoteForTransaction(uuid, 5);
+	                  },
+	                  onMouseOut: _this2.mouseOut,
+	                  onMouseOver: function onMouseOver() {
+	                    _this2.mouseOver(5);
+	                  }
+	                },
+	                _react2.default.createElement('div', { style: _this2.getIndicatorStyle(5) })
+	              ),
+	              _react2.default.createElement(
+	                'a',
+	                {
+	                  href: '#',
+	                  style: { flex: 1 },
+	                  onClick: function onClick() {
+	                    _this2.newNoteForTransaction(uuid, 6);
+	                  },
+	                  onMouseOut: _this2.mouseOut,
+	                  onMouseOver: function onMouseOver() {
+	                    _this2.mouseOver(6);
+	                  }
+	                },
+	                _react2.default.createElement('div', { style: _this2.getIndicatorStyle(6) })
+	              ),
+	              _react2.default.createElement(
+	                'a',
+	                {
+	                  href: '#',
+	                  style: { flex: 1 },
+	                  onClick: function onClick() {
+	                    _this2.newNoteForTransaction(uuid, 7);
+	                  },
+	                  onMouseOut: _this2.mouseOut,
+	                  onMouseOver: function onMouseOver() {
+	                    _this2.mouseOver(7);
+	                  }
+	                },
+	                _react2.default.createElement('div', { style: _this2.getIndicatorStyle(7) })
+	              ),
+	              _react2.default.createElement(
+	                'a',
+	                {
+	                  href: '#',
+	                  style: { flex: 1 },
+	                  onClick: function onClick() {
+	                    _this2.newNoteForTransaction(uuid, 8);
+	                  },
+	                  onMouseOut: _this2.mouseOut,
+	                  onMouseOver: function onMouseOver() {
+	                    _this2.mouseOver(8);
+	                  }
+	                },
+	                _react2.default.createElement('div', { style: _this2.getIndicatorStyle(8) })
+	              ),
+	              _react2.default.createElement(
+	                'a',
+	                {
+	                  href: '#',
+	                  style: { flex: 1 },
+	                  onClick: function onClick() {
+	                    _this2.newNoteForTransaction(uuid, 9);
+	                  },
+	                  onMouseOut: _this2.mouseOut,
+	                  onMouseOver: function onMouseOver() {
+	                    _this2.mouseOver(9);
+	                  }
+	                },
+	                _react2.default.createElement('div', { style: _this2.getIndicatorStyle(9) })
+	              ),
+	              _react2.default.createElement(
+	                'a',
+	                {
+	                  href: '#',
+	                  style: { flex: 1 },
+	                  onClick: function onClick() {
+	                    _this2.newNoteForTransaction(uuid, 10);
+	                  },
+	                  onMouseOut: _this2.mouseOut,
+	                  onMouseOver: function onMouseOver() {
+	                    _this2.mouseOver(10);
+	                  }
+	                },
+	                _react2.default.createElement('div', { style: _this2.getIndicatorStyle(10) })
+	              )
+	            )
 	          )
 	        );
 	      }
