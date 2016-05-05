@@ -14,22 +14,23 @@ Scratch:
 
 info needed for the pie panel:
 
-spend (all debit transactions added)
+total spend (all debit transactions added)
 
-saved (budget - spend)
-saved %: saved/budget
+saved (income - spend)
+saved_%: saved/income
 
-possible saved (budet - necessary spend)
-possible %: possible/budget
+possible_saved (income - fixed expenses)
+possible_%: possible_saved/income
 
-efficiency: saved/possible
+efficiency: saved/possible_saved
 
 */
 
 const PiePanel = React.createClass({
   render: function(){
     const txns = this.props.state.txns;
-    const budget = this.props.state.monthlyBudget;
+    const possibleSavings = this.props.state.possibleSavings;
+    const monthlyIncome = this.props.state.monthlyIncome;
 
     let totalSpend = 0;
     // add every debit event to the monthly spend
@@ -39,27 +40,23 @@ const PiePanel = React.createClass({
       }
     }
 
-    // FIXME: when notes actually work, calculate this.
-    // In the interim, it's fake
-    let importantSpend = 2500;
+    let savedAbs = monthlyIncome - totalSpend;
+    let savedPct = savedAbs/monthlyIncome * 100;
 
-    let savedCash = budget - totalSpend;
-    let savedPct = savedCash/budget;
+    let possibleSavedAbs = possibleSavings;
+    let possibleSavedPct = possibleSavedAbs/monthlyIncome * 100;
 
-    let possibleSavedCash = budget - importantSpend;
-    let possibleSavedPct = possibleSavedCash/budget;
-
-    let efficiency = savedCash/possibleSavedCash;
+    let efficiency = savedAbs/possibleSavedAbs * 100;
 
     return (<ul>
       <PieStat 
         description="Saved"
-        leftContent={'$'+savedCash}
+        leftContent={'$'+savedAbs}
         rightContent={savedPct+'%'}
       />
       <PieStat 
         description="Of A Possible"
-        leftContent={'$'+possibleSavedCash}
+        leftContent={'$'+possibleSavedAbs}
         rightContent={possibleSavedPct+'%'}
       />
       <PieStat 

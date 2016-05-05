@@ -76,24 +76,24 @@
 
 	var _SideBar2 = _interopRequireDefault(_SideBar);
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	var _secrets = __webpack_require__(180);
 
-	// =========================================
-	// App
-	// ----
-	// Fetches transaction data from api and renders dashboard
-	// =========================================
+	var _secrets2 = _interopRequireDefault(_secrets);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var ReactApp = _react2.default.createClass({
 	  displayName: 'ReactApp',
 	  getInitialState: function getInitialState() {
 	    return {
-	      monthlyBudget: 6500,
 	      targetYear: '2016',
 	      targetMonth: '01',
 	      notes: [],
 	      txns: [],
-	      untagged: []
+	      untagged: [],
+	      // Possible savings = income not allocated for expenses
+	      monthlyIncome: _secrets2.default.monthlyIncome,
+	      possibleSavings: _secrets2.default.monthlyIncome - _secrets2.default.expenses
 	    };
 	  },
 
@@ -210,13 +210,21 @@
 	    return _react2.default.createElement(
 	      'div',
 	      { style: wrapStyles },
-	      _react2.default.createElement('div', { style: { width: '75%' } }),
+	      _react2.default.createElement(
+	        'div',
+	        { style: { width: '75%' } },
+	        _react2.default.createElement(_PiePanel2.default, { state: this.state })
+	      ),
 	      _react2.default.createElement(_SideBar2.default, { state: this.state, refresh: function refresh() {
 	          _this.getTxnsForMonth();
 	        } })
 	    );
 	  }
-	});
+	}); // =========================================
+	// App
+	// ----
+	// Fetches transaction data from api and renders dashboard
+	// =========================================
 
 	_reactDom2.default.render(_react2.default.createElement(ReactApp, null), document.getElementById('appContainer'));
 
@@ -30917,15 +30925,15 @@
 
 	info needed for the pie panel:
 
-	spend (all debit transactions added)
+	total spend (all debit transactions added)
 
-	saved (budget - spend)
-	saved %: saved/budget
+	saved (income - spend)
+	saved_%: saved/income
 
-	possible saved (budet - necessary spend)
-	possible %: possible/budget
+	possible_saved (income - fixed expenses)
+	possible_%: possible_saved/income
 
-	efficiency: saved/possible
+	efficiency: saved/possible_saved
 
 	*/
 
@@ -30941,7 +30949,8 @@
 
 	  render: function render() {
 	    var txns = this.props.state.txns;
-	    var budget = this.props.state.monthlyBudget;
+	    var possibleSavings = this.props.state.possibleSavings;
+	    var monthlyIncome = this.props.state.monthlyIncome;
 
 	    var totalSpend = 0;
 	    // add every debit event to the monthly spend
@@ -30951,29 +30960,25 @@
 	      }
 	    }
 
-	    // FIXME: when notes actually work, calculate this.
-	    // In the interim, it's fake
-	    var importantSpend = 2500;
+	    var savedAbs = monthlyIncome - totalSpend;
+	    var savedPct = savedAbs / monthlyIncome * 100;
 
-	    var savedCash = budget - totalSpend;
-	    var savedPct = savedCash / budget;
+	    var possibleSavedAbs = possibleSavings;
+	    var possibleSavedPct = possibleSavedAbs / monthlyIncome * 100;
 
-	    var possibleSavedCash = budget - importantSpend;
-	    var possibleSavedPct = possibleSavedCash / budget;
-
-	    var efficiency = savedCash / possibleSavedCash;
+	    var efficiency = savedAbs / possibleSavedAbs * 100;
 
 	    return _react2.default.createElement(
 	      'ul',
 	      null,
 	      _react2.default.createElement(PieStat, {
 	        description: 'Saved',
-	        leftContent: '$' + savedCash,
+	        leftContent: '$' + savedAbs,
 	        rightContent: savedPct + '%'
 	      }),
 	      _react2.default.createElement(PieStat, {
 	        description: 'Of A Possible',
-	        leftContent: '$' + possibleSavedCash,
+	        leftContent: '$' + possibleSavedAbs,
 	        rightContent: possibleSavedPct + '%'
 	      }),
 	      _react2.default.createElement(PieStat, {
@@ -31389,7 +31394,6 @@
 	      backgroundColor: 'white',
 	      padding: '20px',
 	      overflow: 'hidden',
-	      width: '220px',
 	      boxShadow: '0px 11px 10px 0px rgba(185,185,198,0.16), 0px 2px 4px 0px rgba(79,79,98,0.16)',
 	      // opacity is halved when an action is pending
 	      opacity: this.state.pending ? 0.5 : 1
@@ -31605,6 +31609,27 @@
 	});
 
 	exports.default = SideBar;
+
+/***/ },
+/* 180 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	// carefulllll
+
+	// these are hardcoded for now
+	var rent = 2500;
+	var parking = 160;
+	var food = 200;
+	var utils = 60;
+
+	module.exports = {
+	  simpleUser: 'PatrickJSteele',
+	  simplePass: 'Sn1tchesgetst1tches',
+	  monthlyIncome: 6500,
+	  expenses: rent + parking + food + utils
+	};
 
 /***/ }
 /******/ ]);

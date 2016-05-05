@@ -8,23 +8,25 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import $ from 'jquery';
 import {Motion, spring} from 'react-motion';
-import PiePanel from './components/PiePanel.jsx'
-import BarPanel from './components/BarPanel.jsx'
-import SliverPanel from './components/SliverPanel.jsx'
-import SideBar from './components/SideBar.jsx'
+import PiePanel from './components/PiePanel.jsx';
+import BarPanel from './components/BarPanel.jsx';
+import SliverPanel from './components/SliverPanel.jsx';
+import SideBar from './components/SideBar.jsx';
+import secrets from '../secrets/secrets';
 
 const ReactApp = React.createClass ({
   getInitialState() {
     return {
-      monthlyBudget: 6500,
       targetYear: '2016',
       targetMonth: '01',
       notes: [],
       txns: [],
       untagged: [],
+      // Possible savings = income not allocated for expenses
+      monthlyIncome: secrets.monthlyIncome,
+      possibleSavings: secrets.monthlyIncome - secrets.expenses,
     };
   },
-
   /*
   * Calls the API with the month and year specified in the initial state
   */
@@ -138,7 +140,8 @@ const ReactApp = React.createClass ({
       <div style={wrapStyles}>
         
         <div style={{width: '75%'}}>
-          {/*<PiePanel state={this.state}/>
+          <PiePanel state={this.state}/>
+          {/*
           <BarPanel state={this.state}/>
           <SliverPanel state={this.state}/>
           */}
