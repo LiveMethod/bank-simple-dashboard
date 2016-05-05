@@ -64,23 +64,33 @@
 
 	var _PiePanel2 = _interopRequireDefault(_PiePanel);
 
-	var _BarPanel = __webpack_require__(177);
+	var _BarPanel = __webpack_require__(178);
 
 	var _BarPanel2 = _interopRequireDefault(_BarPanel);
 
-	var _SliverPanel = __webpack_require__(178);
+	var _SliverPanel = __webpack_require__(179);
 
 	var _SliverPanel2 = _interopRequireDefault(_SliverPanel);
 
-	var _SideBar = __webpack_require__(179);
+	var _SideBar = __webpack_require__(180);
 
 	var _SideBar2 = _interopRequireDefault(_SideBar);
 
-	var _secrets = __webpack_require__(180);
+	var _secrets = __webpack_require__(181);
 
 	var _secrets2 = _interopRequireDefault(_secrets);
 
+	var _theme = __webpack_require__(177);
+
+	var _theme2 = _interopRequireDefault(_theme);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	// =========================================
+	// App
+	// ----
+	// Fetches transaction data from api and renders dashboard
+	// =========================================
 
 	var ReactApp = _react2.default.createClass({
 	  displayName: 'ReactApp',
@@ -200,11 +210,14 @@
 	    var _this = this;
 
 	    var wrapStyles = {
-	      width: '100%',
+	      width: '1100px', // set back to 100% for responsive
+	      margin: '0 auto',
+	      padding: 0,
 	      display: 'flex',
 	      flexDirection: 'row',
-	      backgroundColor: 'yellow',
-	      overflow: 'hidden'
+	      backgroundColor: _theme2.default.colors.darkPurple,
+	      overflow: 'hidden',
+	      fontFamily: 'Proxima Nova, helvetica, arial, sans-serif'
 	    };
 
 	    return _react2.default.createElement(
@@ -220,11 +233,7 @@
 	        } })
 	    );
 	  }
-	}); // =========================================
-	// App
-	// ----
-	// Fetches transaction data from api and renders dashboard
-	// =========================================
+	});
 
 	_reactDom2.default.render(_react2.default.createElement(ReactApp, null), document.getElementById('appContainer'));
 
@@ -30917,6 +30926,10 @@
 
 	var _reactMotion = __webpack_require__(160);
 
+	var _theme = __webpack_require__(177);
+
+	var _theme2 = _interopRequireDefault(_theme);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	/*
@@ -30937,13 +30950,6 @@
 
 	*/
 
-	// =========================================
-	// PiePanel
-	// ----
-	// Contains overal monthly expendature as a
-	// pie graph and numerical breakdown
-	// =========================================
-
 	var PiePanel = _react2.default.createClass({
 	  displayName: 'PiePanel',
 
@@ -30960,60 +30966,126 @@
 	      }
 	    }
 
-	    var savedAbs = monthlyIncome - totalSpend;
-	    var savedPct = savedAbs / monthlyIncome * 100;
+	    var savedAbs = Math.floor(monthlyIncome - totalSpend);
+	    var savedPct = Math.floor(savedAbs / monthlyIncome * 100);
 
-	    var possibleSavedAbs = possibleSavings;
-	    var possibleSavedPct = possibleSavedAbs / monthlyIncome * 100;
+	    var possibleSavedAbs = Math.floor(possibleSavings);
+	    var possibleSavedPct = Math.floor(possibleSavedAbs / monthlyIncome * 100);
 
-	    var efficiency = savedAbs / possibleSavedAbs * 100;
+	    var efficiency = Math.floor(savedAbs / possibleSavedAbs * 100);
 
 	    return _react2.default.createElement(
-	      'ul',
-	      null,
-	      _react2.default.createElement(PieStat, {
-	        description: 'Saved',
-	        leftContent: '$' + savedAbs,
-	        rightContent: savedPct + '%'
-	      }),
-	      _react2.default.createElement(PieStat, {
-	        description: 'Of A Possible',
-	        leftContent: '$' + possibleSavedAbs,
-	        rightContent: possibleSavedPct + '%'
-	      }),
-	      _react2.default.createElement(PieStat, {
-	        description: 'Total',
-	        leftContent: 'Efficiency',
-	        rightContent: efficiency
-	      })
+	      'div',
+	      { style: {
+	          display: 'flex',
+	          flexDirection: 'row',
+	          flex: 1,
+	          justifyContent: 'center',
+	          margin: '0 40px'
+	        } },
+	      _react2.default.createElement(
+	        'ul',
+	        { style: {
+	            flex: 1,
+	            backgroundColor: _theme2.default.colors.mediumPurple,
+	            padding: '55px 0'
+	          } },
+	        _react2.default.createElement(PieStat, {
+	          description: 'Saved',
+	          leftContent: '$' + savedAbs,
+	          rightContent: savedPct + '%'
+	        }),
+	        _react2.default.createElement(PieStat, {
+	          description: 'Of A Possible',
+	          leftContent: '$' + possibleSavedAbs,
+	          rightContent: possibleSavedPct + '%'
+	        }),
+	        _react2.default.createElement(PieStat, {
+	          description: 'Total',
+	          leftContent: 'Efficiency',
+	          rightContent: efficiency
+	        })
+	      ),
+	      _react2.default.createElement(
+	        'div',
+	        { style: {
+	            flex: 1,
+	            backgroundColor: _theme2.default.colors.white
+	          } },
+	        'pie graph here'
+	      )
 	    );
 	  }
 	});
 
 	// a ruled list item, displayed beside pie chart
+	// =========================================
+	// PiePanel
+	// ----
+	// Contains overal monthly expendature as a
+	// pie graph and numerical breakdown
+	// =========================================
+
 	var PieStat = _react2.default.createClass({
 	  displayName: 'PieStat',
 
 	  render: function render() {
+	    var pieStatStyle = {
+	      margin: 0,
+	      padding: '0 55px',
+	      listStyleType: 'none'
+	    };
+
+	    var pieStatContent = {
+	      display: 'flex',
+	      flexDirection: 'row',
+	      flex: 1,
+	      justifyContent: 'space-between'
+	    };
+
+	    var pieStatTitleText = {
+	      color: _theme2.default.colors.white,
+	      fontSize: '16px',
+	      fontWeight: 'bold',
+	      margin: 0
+	    };
+
+	    var pieStatContentText = {
+	      color: _theme2.default.colors.white,
+	      fontSize: '24px',
+	      fontWeight: 'bold',
+	      margin: 0,
+	      width: '50%',
+	      flex: 0
+	    };
+
+	    var pieStatRuling = {
+	      margin: '24px auto'
+	    };
+
 	    return _react2.default.createElement(
 	      'li',
-	      { className: 'pie-stat' },
+	      { className: 'pie-stat', style: pieStatStyle },
 	      _react2.default.createElement(
 	        'p',
-	        null,
+	        { style: pieStatTitleText },
 	        this.props.description
 	      ),
 	      _react2.default.createElement(
-	        'h2',
-	        null,
-	        this.props.leftContent
+	        'div',
+	        { style: pieStatContent },
+	        _react2.default.createElement(
+	          'h2',
+	          { style: pieStatContentText },
+	          this.props.leftContent
+	        ),
+	        _react2.default.createElement(
+	          'h2',
+	          { style: pieStatContentText },
+	          this.props.rightContent
+	        )
 	      ),
-	      _react2.default.createElement(
-	        'h2',
-	        null,
-	        this.props.rightContent
-	      ),
-	      _react2.default.createElement('hr', null)
+	      _react2.default.createElement('hr', { style: pieStatRuling })
 	    );
 	  }
 	});
@@ -31022,6 +31094,33 @@
 
 /***/ },
 /* 177 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	// =========================================
+	// Theme
+	// ----
+	// contains vars related to the theme for use
+	// in component styles
+	// =========================================
+
+	module.exports = {
+	  colors: {
+	    white: '#FFFFFF',
+	    veryLightPurple: '#E7E7F6',
+	    lightPurple: '#BDBDEB',
+	    mediumPurple: '#7E7ED8',
+	    darkPurple: '#333750',
+
+	    lightPalePurple: '#BFBFDA',
+	    mediumPalePurple: '#80808C',
+	    darkPalePurple: '#505063'
+	  }
+	};
+
+/***/ },
+/* 178 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31184,7 +31283,7 @@
 	exports.default = BarPanel;
 
 /***/ },
-/* 178 */
+/* 179 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31227,7 +31326,7 @@
 	exports.default = SliverPanel;
 
 /***/ },
-/* 179 */
+/* 180 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31611,7 +31710,7 @@
 	exports.default = SideBar;
 
 /***/ },
-/* 180 */
+/* 181 */
 /***/ function(module, exports) {
 
 	'use strict';

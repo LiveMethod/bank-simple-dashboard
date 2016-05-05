@@ -13,6 +13,7 @@ import BarPanel from './components/BarPanel.jsx';
 import SliverPanel from './components/SliverPanel.jsx';
 import SideBar from './components/SideBar.jsx';
 import secrets from '../secrets/secrets';
+import theme from './theme.js';
 
 const ReactApp = React.createClass ({
   getInitialState() {
@@ -129,11 +130,14 @@ const ReactApp = React.createClass ({
 
   render: function(){
     const wrapStyles = {
-      width: '100%',
+      width: '1100px', // set back to 100% for responsive
+      margin: '0 auto',
+      padding: 0,
       display: 'flex',
       flexDirection: 'row',
-      backgroundColor: 'yellow',
+      backgroundColor: theme.colors.darkPurple,
       overflow: 'hidden',
+      fontFamily: 'Proxima Nova, helvetica, arial, sans-serif',
     };
 
     return(
