@@ -126,7 +126,7 @@ const UntaggedTransactionSlice = React.createClass({
     };
 
     const dotColor = index <= this.state.dotHover 
-      ? dotBackgrounds[this.state.dotHover]
+      ? dotBackgrounds[index]
       : dotBackgrounds[0];
 
 
@@ -291,7 +291,5 @@ const UntaggedTransactionSlice = React.createClass({
     );
   }
 });
-
-
 
 export default SideBar;

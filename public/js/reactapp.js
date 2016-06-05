@@ -31472,7 +31472,7 @@
 	      10: '#09D00A'
 	    };
 
-	    var dotColor = index <= this.state.dotHover ? dotBackgrounds[this.state.dotHover] : dotBackgrounds[0];
+	    var dotColor = index <= this.state.dotHover ? dotBackgrounds[index] : dotBackgrounds[0];
 
 	    return {
 	      display: 'block',

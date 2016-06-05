@@ -22,7 +22,7 @@ View at localhost:3000
 
 Note: If you're modifying the front end, you'll also want to run `webpack --watch` in a 3rd window.
 
-### Notes
+## Notes
 
 #### GET /notes/
   Get all notes
@@ -42,7 +42,7 @@ Note: If you're modifying the front end, you'll also want to run `webpack --watc
 #### DELETE /notes/:TRANSACTION_UUID
   Delete a single note for a given transaction UUID
 
-### Transactions
+## Transactions
 
 #### GET /transactions/
   Get all transactions
@@ -59,7 +59,7 @@ Note: If you're modifying the front end, you'll also want to run `webpack --watc
 #### DELETE /transactions/:TRANSACTION_UUID
   Delete a single transaction for a given transaction UUID
 
-### Scraper
+## Scraper
 
 #### GET /scrape/
   Logs in with credentials from secrets and downloads all TXNS from bank
