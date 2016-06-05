@@ -6,6 +6,8 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import d3 from 'd3';
+import c3 from 'c3';
 import $ from 'jquery';
 import {Motion, spring} from 'react-motion';
 import PiePanel from './components/PiePanel.jsx';
@@ -98,8 +100,8 @@ const ReactApp = React.createClass ({
     // for each note, slice out the txn with that uuid
     // from the larger group
 
-    // an array of transaction objects
-    var untaggedTransactions = this.state.txns;
+    // clone the array of transaction objects
+    var untaggedTransactions = JSON.parse(JSON.stringify(this.state.txns));
     console.log('matching txns against ' +  this.state.notes.length + ' notes');
     console.log(untaggedTransactions.length + ' transactions before filtration');
     console.log('filtering....');
@@ -118,7 +120,8 @@ const ReactApp = React.createClass ({
         return match;
       });
     }
-    console.log(untaggedTransactions.length + ' transactions after filtration');
+    console.log(this.state.txns.length + ' total transactions after filtration');
+    console.log(this.state.untagged.length + ' untagged transactions after filtration');
     this.setState({
       untagged: untaggedTransactions,
     })

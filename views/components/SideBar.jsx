@@ -146,10 +146,22 @@ const UntaggedTransactionSlice = React.createClass({
     const sliceStyle = {
       backgroundColor: 'white',
       padding: '20px',
+      paddingBottom: '0px', // 20px is added to the bottom of dots. same visual effect, larger target area.
       overflow: 'hidden',
       boxShadow: '0px 11px 10px 0px rgba(185,185,198,0.16), 0px 2px 4px 0px rgba(79,79,98,0.16)',
       // opacity is halved when an action is pending
       opacity: this.state.pending ? 0.5 : 1,
+    }
+
+    const dotWrapStyle = {
+      display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'space-between'
+    }
+    
+    const dotStyle = {
+      flex: 1,
+      paddingBottom: '20px',
     }
 
     const {
@@ -187,14 +199,14 @@ const UntaggedTransactionSlice = React.createClass({
             return null;
           };
           
-          return(<div style={{opacity: motion.anim, height: motion.height + 'px', margin: '0 10px 30px 10px',}}>
+          return(<div style={{opacity: motion.anim, height: motion.height + 'px', margin: '0 10px 30 10px',}}>
             <div style={sliceStyle} data-id={_id} data-uuid={uuid}>
               <strong>${price}</strong> {description}
 
-              <div className="sidebar__dotwrap" style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
+              <div style={dotWrapStyle}>
                 <a 
                   href="#"
-                  style={{flex: 1}}
+                  style={dotStyle}
                   onClick={ ()=>{this.newNoteForTransaction(uuid, 1)} }
                   onMouseOut={this.mouseOut}
                   onMouseOver={ () => {this.mouseOver(1)} }
@@ -203,7 +215,7 @@ const UntaggedTransactionSlice = React.createClass({
                 </a>
                 <a 
                   href="#"
-                  style={{flex: 1}}
+                  style={dotStyle}
                   onClick={ ()=>{this.newNoteForTransaction(uuid, 2)} }
                   onMouseOut={this.mouseOut}
                   onMouseOver={ () => {this.mouseOver(2)} }
@@ -212,7 +224,7 @@ const UntaggedTransactionSlice = React.createClass({
                 </a>
                 <a 
                   href="#"
-                  style={{flex: 1}}
+                  style={dotStyle}
                   onClick={ ()=>{this.newNoteForTransaction(uuid, 3)} }
                   onMouseOut={this.mouseOut}
                   onMouseOver={ () => {this.mouseOver(3)} }
@@ -221,7 +233,7 @@ const UntaggedTransactionSlice = React.createClass({
                 </a>
                 <a 
                   href="#"
-                  style={{flex: 1}}
+                  style={dotStyle}
                   onClick={ ()=>{this.newNoteForTransaction(uuid, 4)} }
                   onMouseOut={this.mouseOut}
                   onMouseOver={ () => {this.mouseOver(4)} }
@@ -230,7 +242,7 @@ const UntaggedTransactionSlice = React.createClass({
                 </a>
                 <a 
                   href="#"
-                  style={{flex: 1}}
+                  style={dotStyle}
                   onClick={ ()=>{this.newNoteForTransaction(uuid, 5)} }
                   onMouseOut={this.mouseOut}
                   onMouseOver={ () => {this.mouseOver(5)} }
@@ -239,7 +251,7 @@ const UntaggedTransactionSlice = React.createClass({
                 </a>
                 <a 
                   href="#"
-                  style={{flex: 1}}
+                  style={dotStyle}
                   onClick={ ()=>{this.newNoteForTransaction(uuid, 6)} }
                   onMouseOut={this.mouseOut}
                   onMouseOver={ () => {this.mouseOver(6)} }
@@ -248,7 +260,7 @@ const UntaggedTransactionSlice = React.createClass({
                 </a>
                 <a 
                   href="#"
-                  style={{flex: 1}}
+                  style={dotStyle}
                   onClick={ ()=>{this.newNoteForTransaction(uuid, 7)} }
                   onMouseOut={this.mouseOut}
                   onMouseOver={ () => {this.mouseOver(7)} }
@@ -257,7 +269,7 @@ const UntaggedTransactionSlice = React.createClass({
                 </a>
                 <a 
                   href="#"
-                  style={{flex: 1}}
+                  style={dotStyle}
                   onClick={ ()=>{this.newNoteForTransaction(uuid, 8)} }
                   onMouseOut={this.mouseOut}
                   onMouseOver={ () => {this.mouseOver(8)} }
@@ -266,7 +278,7 @@ const UntaggedTransactionSlice = React.createClass({
                 </a>
                 <a 
                   href="#"
-                  style={{flex: 1}}
+                  style={dotStyle}
                   onClick={ ()=>{this.newNoteForTransaction(uuid, 9)} }
                   onMouseOut={this.mouseOut}
                   onMouseOver={ () => {this.mouseOver(9)} }
@@ -275,7 +287,7 @@ const UntaggedTransactionSlice = React.createClass({
                 </a>
                 <a 
                   href="#"
-                  style={{flex: 1}}
+                  style={dotStyle}
                   onClick={ ()=>{this.newNoteForTransaction(uuid, 10)} }
                   onMouseOut={this.mouseOut}
                   onMouseOver={ () => {this.mouseOver(10)} }

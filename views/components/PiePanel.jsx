@@ -6,6 +6,7 @@
 // =========================================
 
 import React from 'react';
+import c3 from 'c3';
 import {Motion, spring} from 'react-motion';
 import theme from '../theme.js';
 
@@ -49,18 +50,47 @@ const PiePanel = React.createClass({
 
     let efficiency = Math.floor(savedAbs/possibleSavedAbs * 100);
 
+    var chart = c3.generate({
+      bindto: '#piechart',
+      data: {
+        columns: [
+          ['Saved', savedAbs],
+          ['Additonal Possible Savings', possibleSavedAbs - savedAbs],
+          ['Expenses', monthlyIncome - possibleSavedAbs],
+        ],
+        type: 'donut',
+      },
+      color: {
+        pattern: [theme.colors.mediumPurple, theme.colors.lightPurple, theme.colors.veryLightPurple]
+      },
+      legend: {
+        show: false
+      },
+      tooltip: {
+        show: false
+      },
+      donut: {
+        label: {
+          show: false
+        },
+        width: 70,
+        title: efficiency + "% Efficiency",
+      }
+    });
+
     return (
       <div style={{
         display: 'flex',
         flexDirection: 'row',
         flex: 1,
         justifyContent: 'center',
-        margin:'0 40px',
+        margin:'20px 40px',
       }}>
         <ul style={{
           flex: 1,
           backgroundColor: theme.colors.mediumPurple,
           padding: '55px 0',
+          margin: 0,
         }}>
           <PieStat
             description="Saved"
@@ -81,8 +111,9 @@ const PiePanel = React.createClass({
         <div style={{
           flex: 1,
           backgroundColor: theme.colors.white,
+          padding: '55px',
         }}>
-          pie graph here
+          <div id="piechart" />
         </div>
       </div>
     )
