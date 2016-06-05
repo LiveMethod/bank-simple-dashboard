@@ -5,7 +5,9 @@
 // =========================================
 
 import React from 'react';
+import c3 from 'c3';
 import {Motion, spring} from 'react-motion';
+import theme from '../theme.js';
 
 /*
 
@@ -34,6 +36,19 @@ const BarPanel = React.createClass({
     const targetMonth = this.props.state.targetMonth;
     const targetYear = this.props.state.targetYear;
 
+    /*
+    Graphdata becomes an array of objects like this:
+    [
+      {
+        data: 'yyyy-mm-dd',
+        txns: [
+          transaction,
+          transaction,
+          ...
+        ]
+      }
+    ]
+    */
     let graphData = [];
 
     // loop through transactions, adding or updating
@@ -68,79 +83,87 @@ const BarPanel = React.createClass({
       return n > 9 ? "" + n: "0" + n;
     }
 
-    const barPanelStyles = {
-      'backgroundColor':'#cccccc',
-      'position':'relative',
-      'display':'table'
-    }
+    // trim the robust data into something lighter
+    // for c3
 
-    // FIXME: this is a fucking abomination
-    return (<div style={barPanelStyles}>
-      {Array.apply(0, Array(31)).map(function (x, i){
-        
-        var target = targetYear+'-'+targetMonth+'-'+twoDigit(i+1);
-        var thisDate = graphData.filter(
-          function(val,index,array){
-            return val.date == target;
-          }
-        )[0];
-        var txnsForDate = undefined;
-        if(thisDate != undefined){
-          txnsForDate = thisDate.txns;
+    // clone
+    var splitChartData = []; 
+    var combinedChartData = ['spend']; 
+
+    // for each of 31 days
+    Array.apply(0, Array(31)).map(function (x, i){
+      // create a target day that matches simple's local datetime
+      var target = targetYear+'-'+targetMonth+'-'+twoDigit(i+1);
+
+      // create an array of data that matches the filter
+      // txnDate == targetDate
+      var thisDate = graphData.filter(
+        function(val,index,array){
+          return val.date == target;
         }
+      )[0];
 
+      var txnsForDate = undefined;
+      // init an array with DD as the first entry
+      var splitAmountsForDate = [twoDigit(i+1)];
 
-        return (<GraphBar 
-          date={target}
-          txns={txnsForDate}
+      // as long as there are some transactions
+      // for the target date, store them.
+      if(thisDate != undefined){
+        txnsForDate = thisDate.txns;
 
-          key={i + 1}
-        />)
-      })}
-    </div>)
+        var combinedAmountForDate = 0;
+        for(var j in txnsForDate){
+          // add txn amount as an entry for separated array
+          splitAmountsForDate.push(txnsForDate[j].amounts.amount/10000);
+          // add txn amount for daily total for combined array
+          combinedAmountForDate += (txnsForDate[j].amounts.amount/10000);
+        }
+        combinedChartData.push(Math.ceil(combinedAmountForDate));
+      }
+
+      splitChartData.push(splitAmountsForDate);
+    })
+
+    // splitChartData is available, and looks like this
+    // [
+    //   ['01',43,24,55],
+    //   ['02',10,44,55,35,36],
+    //   ...
+    // ]
+    // but I can't get c3 to play nice with that yet.
+    
+    // make a simple bar chart from an array
+    // with daily total spends chronologically, like this
+    // ["spend",34,25,500,93,...]
+
+    var chart = c3.generate({
+      bindto: '#spendbyday',
+      data: {
+        columns: [combinedChartData],
+        type: 'bar',
+        colors: {
+          spend: theme.colors.lightPurple,
+        }
+      },
+      bar: {
+        width: 8,
+        ratio: 0.1,
+        zerobased: true,
+      },
+      legend: {
+        show: false
+      },
+    });
+
+    const chartStyle = {
+      background: theme.colors.purpleGradient,
+      margin: '20px 40px',
+    };
+    return(
+      <div id="spendbyday" style={chartStyle} />
+    )
   }
 });
 
-
-
-const GraphBar = React.createClass({
-  render: function(){
-
-    const date = this.props.date;
-    const txns = this.props.txns;
-
-    // get a total of all spending
-    var totalSpend = 0;
-    for(var t in txns){
-      totalSpend += txns[t].amounts.amount;
-    }
-
-    const barStyles = {
-      'width':'20px',
-      'overflow':'hidden',
-      'display':'table-cell',
-      'verticalAlign':'bottom'
-    }
-
-    const dateStyles = {
-    }
-
-    // TODO: data-importance
-    return (<div style={barStyles} data-count={txns ? txns.length : 0} data-spend={totalSpend}>
-      {txns && txns.map(function(txn){
-        return (<div
-          style={{
-            'height':txn.amounts.amount/20000+'px',
-            'backgroundColor':'red',
-            'margin':'1px 2px',
-          }}
-          key={txn.uuid}
-          data-uuid={txn.uuid}
-          data-amount={txn.amounts.amount/10000}
-        >
-        </div>)
-      })}
-    </div>)
-  }
-});
 export default BarPanel;

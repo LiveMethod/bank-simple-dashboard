@@ -139,14 +139,14 @@ const PieStat = React.createClass({
     const pieStatTitleText = {
       color: theme.colors.white,
       fontSize: '16px',
-      fontWeight: 'bold',
+      fontWeight: '600',
       margin: 0,
     };
 
     const pieStatContentText = {
       color: theme.colors.white,
       fontSize: '24px',
-      fontWeight: 'bold',
+      fontWeight: '600',
       margin: 0,
       width: '50%',
       flex: 0,
@@ -154,6 +154,12 @@ const PieStat = React.createClass({
 
     const pieStatRuling = {
       margin: '24px auto',
+      height: '4px',
+      borderStyle: 'solid',
+      borderWidth: '0px',
+      borderColor: theme.colors.lightPurple,
+      borderTopWidth: '1px',
+      borderLeftWidth: '40px',
     };
 
     return(<li className="pie-stat" style={pieStatStyle}>

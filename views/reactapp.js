@@ -148,8 +148,8 @@ const ReactApp = React.createClass ({
         
         <div style={{width: '75%'}}>
           <PiePanel state={this.state}/>
-          {/*
           <BarPanel state={this.state}/>
+          {/*
           <SliverPanel state={this.state}/>
           */}
         </div>

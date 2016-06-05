@@ -235,7 +235,8 @@
 	      _react2.default.createElement(
 	        'div',
 	        { style: { width: '75%' } },
-	        _react2.default.createElement(_PiePanel2.default, { state: this.state })
+	        _react2.default.createElement(_PiePanel2.default, { state: this.state }),
+	        _react2.default.createElement(_BarPanel2.default, { state: this.state })
 	      ),
 	      _react2.default.createElement(_SideBar2.default, { state: this.state, refresh: function refresh() {
 	          _this.getTxnsForMonth();
@@ -48852,21 +48853,27 @@
 	    var pieStatTitleText = {
 	      color: _theme2.default.colors.white,
 	      fontSize: '16px',
-	      fontWeight: 'bold',
+	      fontWeight: '600',
 	      margin: 0
 	    };
 
 	    var pieStatContentText = {
 	      color: _theme2.default.colors.white,
 	      fontSize: '24px',
-	      fontWeight: 'bold',
+	      fontWeight: '600',
 	      margin: 0,
 	      width: '50%',
 	      flex: 0
 	    };
 
 	    var pieStatRuling = {
-	      margin: '24px auto'
+	      margin: '24px auto',
+	      height: '4px',
+	      borderStyle: 'solid',
+	      borderWidth: '0px',
+	      borderColor: _theme2.default.colors.lightPurple,
+	      borderTopWidth: '1px',
+	      borderLeftWidth: '40px'
 	    };
 
 	    return _react2.default.createElement(
@@ -48921,7 +48928,9 @@
 
 	    lightPalePurple: '#BFBFDA',
 	    mediumPalePurple: '#80808C',
-	    darkPalePurple: '#505063'
+	    darkPalePurple: '#505063',
+
+	    purpleGradient: '-webkit-linear-gradient(top, rgba(99,74,201,1) 0%, rgba(68,42,165,1) 100%)'
 	  }
 	};
 
@@ -48939,7 +48948,15 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _c = __webpack_require__(160);
+
+	var _c2 = _interopRequireDefault(_c);
+
 	var _reactMotion = __webpack_require__(162);
+
+	var _theme = __webpack_require__(179);
+
+	var _theme2 = _interopRequireDefault(_theme);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -48978,6 +48995,19 @@
 	    var targetMonth = this.props.state.targetMonth;
 	    var targetYear = this.props.state.targetYear;
 
+	    /*
+	    Graphdata becomes an array of objects like this:
+	    [
+	      {
+	        data: 'yyyy-mm-dd',
+	        txns: [
+	          transaction,
+	          transaction,
+	          ...
+	        ]
+	      }
+	    ]
+	    */
 	    var graphData = [];
 
 	    // loop through transactions, adding or updating
@@ -49012,80 +49042,85 @@
 	      return n > 9 ? "" + n : "0" + n;
 	    }
 
-	    var barPanelStyles = {
-	      'backgroundColor': '#cccccc',
-	      'position': 'relative',
-	      'display': 'table'
-	    };
+	    // trim the robust data into something lighter
+	    // for c3
 
-	    // FIXME: this is a fucking abomination
-	    return _react2.default.createElement(
-	      'div',
-	      { style: barPanelStyles },
-	      Array.apply(0, Array(31)).map(function (x, i) {
+	    // clone
+	    var splitChartData = [];
+	    var combinedChartData = ['spend'];
 
-	        var target = targetYear + '-' + targetMonth + '-' + twoDigit(i + 1);
-	        var thisDate = graphData.filter(function (val, index, array) {
-	          return val.date == target;
-	        })[0];
-	        var txnsForDate = undefined;
-	        if (thisDate != undefined) {
-	          txnsForDate = thisDate.txns;
+	    // for each of 31 days
+	    Array.apply(0, Array(31)).map(function (x, i) {
+	      // create a target day that matches simple's local datetime
+	      var target = targetYear + '-' + targetMonth + '-' + twoDigit(i + 1);
+
+	      // create an array of data that matches the filter
+	      // txnDate == targetDate
+	      var thisDate = graphData.filter(function (val, index, array) {
+	        return val.date == target;
+	      })[0];
+
+	      var txnsForDate = undefined;
+	      // init an array with DD as the first entry
+	      var splitAmountsForDate = [twoDigit(i + 1)];
+
+	      // as long as there are some transactions
+	      // for the target date, store them.
+	      if (thisDate != undefined) {
+	        txnsForDate = thisDate.txns;
+
+	        var combinedAmountForDate = 0;
+	        for (var j in txnsForDate) {
+	          // add txn amount as an entry for separated array
+	          splitAmountsForDate.push(txnsForDate[j].amounts.amount / 10000);
+	          // add txn amount for daily total for combined array
+	          combinedAmountForDate += txnsForDate[j].amounts.amount / 10000;
 	        }
+	        combinedChartData.push(Math.ceil(combinedAmountForDate));
+	      }
 
-	        return _react2.default.createElement(GraphBar, {
-	          date: target,
-	          txns: txnsForDate,
+	      splitChartData.push(splitAmountsForDate);
+	    });
 
-	          key: i + 1
-	        });
-	      })
-	    );
-	  }
-	});
+	    // splitChartData is available, and looks like this
+	    // [
+	    //   ['01',43,24,55],
+	    //   ['02',10,44,55,35,36],
+	    //   ...
+	    // ]
+	    // but I can't get c3 to play nice with that yet.
 
-	var GraphBar = _react2.default.createClass({
-	  displayName: 'GraphBar',
+	    // make a simple bar chart from an array
+	    // with daily total spends chronologically, like this
+	    // ["spend",34,25,500,93,...]
 
-	  render: function render() {
+	    var chart = _c2.default.generate({
+	      bindto: '#spendbyday',
+	      data: {
+	        columns: [combinedChartData],
+	        type: 'bar',
+	        colors: {
+	          spend: _theme2.default.colors.lightPurple
+	        }
+	      },
+	      bar: {
+	        width: 8,
+	        ratio: 0.1,
+	        zerobased: true
+	      },
+	      legend: {
+	        show: false
+	      }
+	    });
 
-	    var date = this.props.date;
-	    var txns = this.props.txns;
-
-	    // get a total of all spending
-	    var totalSpend = 0;
-	    for (var t in txns) {
-	      totalSpend += txns[t].amounts.amount;
-	    }
-
-	    var barStyles = {
-	      'width': '20px',
-	      'overflow': 'hidden',
-	      'display': 'table-cell',
-	      'verticalAlign': 'bottom'
+	    var chartStyle = {
+	      background: _theme2.default.colors.purpleGradient,
+	      margin: '20px 40px'
 	    };
-
-	    var dateStyles = {};
-
-	    // TODO: data-importance
-	    return _react2.default.createElement(
-	      'div',
-	      { style: barStyles, 'data-count': txns ? txns.length : 0, 'data-spend': totalSpend },
-	      txns && txns.map(function (txn) {
-	        return _react2.default.createElement('div', {
-	          style: {
-	            'height': txn.amounts.amount / 20000 + 'px',
-	            'backgroundColor': 'red',
-	            'margin': '1px 2px'
-	          },
-	          key: txn.uuid,
-	          'data-uuid': txn.uuid,
-	          'data-amount': txn.amounts.amount / 10000
-	        });
-	      })
-	    );
+	    return _react2.default.createElement('div', { id: 'spendbyday', style: chartStyle });
 	  }
 	});
+
 	exports.default = BarPanel;
 
 /***/ },
