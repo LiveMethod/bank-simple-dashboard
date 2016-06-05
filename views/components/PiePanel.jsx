@@ -154,6 +154,12 @@ const PieStat = React.createClass({
 
     const pieStatRuling = {
       margin: '24px auto',
+      height: '4px',
+      borderStyle: 'solid',
+      borderWidth: '0px',
+      borderColor: theme.colors.lightPurple,
+      borderTopWidth: '1px',
+      borderLeftWidth: '40px',
     };
 
     return(<li className="pie-stat" style={pieStatStyle}>

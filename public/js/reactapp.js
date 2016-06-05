@@ -48866,8 +48866,16 @@
 	    };
 
 	    var pieStatRuling = {
-	      margin: '24px auto'
+	      margin: '24px auto',
+	      height: '4px',
+	      borderStyle: 'solid',
+	      borderWidth: '0px',
+	      borderColor: _theme2.default.colors.lightPurple,
+	      borderTopWidth: '1px',
+	      borderLeftWidth: '40px'
 	    };
+
+	    // borderLeftColor: 'red',
 
 	    return _react2.default.createElement(
 	      'li',
