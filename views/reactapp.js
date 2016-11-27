@@ -14,6 +14,7 @@ import PiePanel from './components/PiePanel.jsx';
 import BarPanel from './components/BarPanel.jsx';
 import SliverPanel from './components/SliverPanel.jsx';
 import SideBar from './components/SideBar.jsx';
+import NavBar from './components/NavBar.jsx';
 import secrets from '../secrets/secrets';
 import theme from './theme.js';
 
@@ -138,6 +139,7 @@ const ReactApp = React.createClass ({
       padding: 0,
       display: 'flex',
       flexDirection: 'row',
+      flexFlow: 'row wrap',
       backgroundColor: theme.colors.darkPurple,
       overflow: 'hidden',
       fontFamily: 'Proxima Nova, helvetica, arial, sans-serif',
@@ -146,6 +148,12 @@ const ReactApp = React.createClass ({
     return(
       <div style={wrapStyles}>
         
+        <NavBar
+          targetYear={this.state.targetYear}
+          targetMonth={this.state.targetMonth}
+        />
+        
+        {/* Main (left) content panel */}
         <div style={{width: '75%'}}>
           <PiePanel state={this.state}/>
           <BarPanel state={this.state}/>

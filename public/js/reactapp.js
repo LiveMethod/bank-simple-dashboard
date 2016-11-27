@@ -84,7 +84,11 @@
 
 	var _SideBar2 = _interopRequireDefault(_SideBar);
 
-	var _secrets = __webpack_require__(183);
+	var _NavBar = __webpack_require__(183);
+
+	var _NavBar2 = _interopRequireDefault(_NavBar);
+
+	var _secrets = __webpack_require__(184);
 
 	var _secrets2 = _interopRequireDefault(_secrets);
 
@@ -93,12 +97,6 @@
 	var _theme2 = _interopRequireDefault(_theme);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	// =========================================
-	// App
-	// ----
-	// Fetches transaction data from api and renders dashboard
-	// =========================================
 
 	var ReactApp = _react2.default.createClass({
 	  displayName: 'ReactApp',
@@ -224,6 +222,7 @@
 	      padding: 0,
 	      display: 'flex',
 	      flexDirection: 'row',
+	      flexFlow: 'row wrap',
 	      backgroundColor: _theme2.default.colors.darkPurple,
 	      overflow: 'hidden',
 	      fontFamily: 'Proxima Nova, helvetica, arial, sans-serif'
@@ -232,6 +231,10 @@
 	    return _react2.default.createElement(
 	      'div',
 	      { style: wrapStyles },
+	      _react2.default.createElement(_NavBar2.default, {
+	        targetYear: this.state.targetYear,
+	        targetMonth: this.state.targetMonth
+	      }),
 	      _react2.default.createElement(
 	        'div',
 	        { style: { width: '75%' } },
@@ -243,7 +246,11 @@
 	        } })
 	    );
 	  }
-	});
+	}); // =========================================
+	// App
+	// ----
+	// Fetches transaction data from api and renders dashboard
+	// =========================================
 
 	_reactDom2.default.render(_react2.default.createElement(ReactApp, null), document.getElementById('appContainer'));
 
@@ -48876,8 +48883,6 @@
 	      borderLeftWidth: '40px'
 	    };
 
-	    // borderLeftColor: 'red',
-
 	    return _react2.default.createElement(
 	      'li',
 	      { className: 'pie-stat', style: pieStatStyle },
@@ -49566,6 +49571,72 @@
 
 /***/ },
 /* 183 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactMotion = __webpack_require__(162);
+
+	var _theme = __webpack_require__(179);
+
+	var _theme2 = _interopRequireDefault(_theme);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var NavBar = _react2.default.createClass({
+	  displayName: 'NavBar',
+
+	  render: function render() {
+	    var navStyles = {
+	      width: '100%',
+	      backgroundColor: _theme2.default.colors.white
+	    };
+
+	    var monthNames = {
+	      "01": "Jan",
+	      "02": "Feb",
+	      "03": "Mar",
+	      "04": "Apr",
+	      "05": "May",
+	      "06": "Jun",
+	      "07": "Jul",
+	      "08": "Aug",
+	      "09": "Sep",
+	      "10": "Oct",
+	      "11": "Nov",
+	      "12": "Dec"
+	    };
+
+	    return _react2.default.createElement(
+	      'div',
+	      { style: navStyles },
+	      _react2.default.createElement(
+	        'h1',
+	        null,
+	        monthNames[this.props.targetMonth],
+	        ' ',
+	        this.props.targetYear
+	      )
+	    );
+	  }
+	}); // =========================================
+	// NavBar
+	// ----
+	// Displays and modifies the apps date range
+	// =========================================
+
+	exports.default = NavBar;
+
+/***/ },
+/* 184 */
 /***/ function(module, exports) {
 
 	'use strict';

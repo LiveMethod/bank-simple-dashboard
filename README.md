@@ -1,6 +1,8 @@
 # bank-simple-dashboard
 Scrapes and stores banksimple transaction history, extends it with custom data, gives a front end for visualizing and updating txn data
 
+Got ideas about this project? Feel free to file issues and view the trello board here: https://trello.com/b/sfRoInMu/orchid-bank-viz
+
 # Getting Started (OSX)
 Clone this repo `git clone GIT_URL DESTINATION_NAME`
 
