@@ -239,6 +239,7 @@ const ReactApp = React.createClass ({
         />
 
         {/* Main (left) content panel */}
+
         <div style={{width: '75%'}}>
           <PiePanel state={this.state}/>
           <BarPanel state={this.state}/>
