@@ -88,7 +88,7 @@
 
 	var _NavBar2 = _interopRequireDefault(_NavBar);
 
-	var _secrets = __webpack_require__(184);
+	var _secrets = __webpack_require__(185);
 
 	var _secrets2 = _interopRequireDefault(_secrets);
 
@@ -107,6 +107,8 @@
 	      notes: [],
 	      txns: [],
 	      untagged: [],
+	      // tracks which months have data, and how much
+	      monthlyDataCount: [],
 	      // Possible savings = income not allocated for expenses
 	      monthlyIncome: _secrets2.default.monthlyIncome,
 	      possibleSavings: _secrets2.default.monthlyIncome - _secrets2.default.expenses
@@ -209,12 +211,83 @@
 	      untagged: untaggedTransactions
 	    });
 	  },
+
+	  /*
+	  * Cycles through some months and checks
+	  * whether any data exists for that month.
+	  */
+	  calculateWhichMonthsHaveData: function calculateWhichMonthsHaveData() {
+	    var _this = this;
+
+	    console.log('called calculateWhichMonthsHaveData');
+
+	    // this is hardcoded for now in the interest of simplicity.
+	    var monthsToCheck = [["2015", "01"], ["2015", "02"], ["2015", "03"], ["2015", "04"], ["2015", "05"], ["2015", "06"], ["2015", "07"], ["2015", "08"], ["2015", "09"], ["2015", "10"], ["2015", "11"], ["2015", "12"], ["2016", "01"], ["2016", "02"], ["2016", "03"], ["2016", "04"], ["2016", "05"], ["2016", "06"], ["2016", "07"], ["2016", "08"], ["2016", "09"], ["2016", "10"], ["2016", "11"], ["2016", "12"], ["2017", "01"], ["2017", "02"], ["2017", "03"], ["2017", "04"], ["2017", "05"], ["2017", "06"], ["2017", "07"], ["2017", "08"], ["2017", "09"], ["2017", "10"], ["2017", "11"], ["2017", "12"]];
+
+	    // this an array of objects created when the check runs.
+	    // It expects a year array as a key and a data count as a vaue
+	    // like  {[yyyy,mm],n}
+	    //
+	    // WARNING: at this time no effort is made to ensure that these appear
+	    // in the array in chronological order! Data is added as it's returned.
+	    var monthlyDataCount = [];
+
+	    var _iteratorNormalCompletion = true;
+	    var _didIteratorError = false;
+	    var _iteratorError = undefined;
+
+	    try {
+	      var _loop = function _loop() {
+	        var date = _step.value;
+
+	        var txnsApi = '/api/transactions?y=' + date[0] + '&m=' + date[1];
+	        _jquery2.default.get(txnsApi, function (data) {
+
+	          // make an object with the date and data count
+	          var tempDate = [date[0], date[1]];
+	          var tempData = data.length;
+	          var tempObject = { tempDate: tempDate, tempData: tempData };
+	          // push that object to the group array
+	          monthlyDataCount.push(tempObject);
+	          // log
+	          // console.log(data.length + " txns for " + date[0] + " " + date[1]);
+	          // console.log("monthly data count:" + monthlyDataCount.length);
+
+	          // wait until the data count has all values to push to state.
+	          if (this.isMounted() && monthlyDataCount.length == monthsToCheck.length) {
+	            this.setState({
+	              monthlyDataCount: monthlyDataCount
+	            });
+	            console.log("state monthlyDataCount: " + JSON.stringify(this.state.monthlyDataCount));
+	          }
+	        }.bind(_this));
+	      };
+
+	      for (var _iterator = monthsToCheck[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	        _loop();
+	      }
+	    } catch (err) {
+	      _didIteratorError = true;
+	      _iteratorError = err;
+	    } finally {
+	      try {
+	        if (!_iteratorNormalCompletion && _iterator.return) {
+	          _iterator.return();
+	        }
+	      } finally {
+	        if (_didIteratorError) {
+	          throw _iteratorError;
+	        }
+	      }
+	    }
+	  },
 	  componentDidMount: function componentDidMount() {
 	    this.getTxnsForMonth();
+	    this.calculateWhichMonthsHaveData();
 	  },
 
 	  render: function render() {
-	    var _this = this;
+	    var _this2 = this;
 
 	    var wrapStyles = {
 	      width: '1100px', // set back to 100% for responsive
@@ -233,7 +306,8 @@
 	      { style: wrapStyles },
 	      _react2.default.createElement(_NavBar2.default, {
 	        targetYear: this.state.targetYear,
-	        targetMonth: this.state.targetMonth
+	        targetMonth: this.state.targetMonth,
+	        monthlyDataCount: this.state.monthlyDataCount
 	      }),
 	      _react2.default.createElement(
 	        'div',
@@ -242,7 +316,7 @@
 	        _react2.default.createElement(_BarPanel2.default, { state: this.state })
 	      ),
 	      _react2.default.createElement(_SideBar2.default, { state: this.state, refresh: function refresh() {
-	          _this.getTxnsForMonth();
+	          _this2.getTxnsForMonth();
 	        } })
 	    );
 	  }
@@ -48937,7 +49011,21 @@
 	    mediumPalePurple: '#80808C',
 	    darkPalePurple: '#505063',
 
-	    purpleGradient: '-webkit-linear-gradient(top, rgba(99,74,201,1) 0%, rgba(68,42,165,1) 100%)'
+	    purpleGradient: '-webkit-linear-gradient(top, rgba(99,74,201,1) 0%, rgba(68,42,165,1) 100%)',
+
+	    spectrum: {
+	      0: '#F3F3F9',
+	      1: '#A90000',
+	      2: '#FD0000',
+	      3: '#FF7100',
+	      4: '#FFAE00',
+	      5: '#FFDE00',
+	      6: '#F4F502',
+	      7: '#CEF70B',
+	      8: '#8DF919',
+	      9: '#28F023',
+	      10: '#09D00A'
+	    }
 	  }
 	};
 
@@ -49294,7 +49382,7 @@
 	  },
 
 	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-	    console.log('uhhhhh');
+	    console.log('SideBar componentWillReceiveProps');
 	  },
 
 	  mouseOver: function mouseOver(dotID) {
@@ -49575,6 +49663,12 @@
 
 	'use strict';
 
+	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }(); // =========================================
+	// NavBar
+	// ----
+	// Displays and modifies the apps date range
+	// =========================================
+
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
@@ -49589,6 +49683,10 @@
 
 	var _theme2 = _interopRequireDefault(_theme);
 
+	var _thenby = __webpack_require__(184);
+
+	var _thenby2 = _interopRequireDefault(_thenby);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var NavBar = _react2.default.createClass({
@@ -49598,6 +49696,14 @@
 	    var navStyles = {
 	      width: '100%',
 	      backgroundColor: _theme2.default.colors.white
+	    };
+
+	    var heatMapStyles = {
+	      display: 'flex'
+	    };
+
+	    var heatMapEntryStyles = {
+	      flex: 1
 	    };
 
 	    var monthNames = {
@@ -49615,6 +49721,104 @@
 	      "12": "Dec"
 	    };
 
+	    var HeatMap = [];
+
+	    // date sort the data
+	    var sortedMonthlyDataCount = this.props.monthlyDataCount.sort((0, _thenby2.default)(function (a, b) {
+	      return parseInt(a.tempDate[0]) - parseInt(b.tempDate[0]);
+	    }).thenBy(function (a, b) {
+	      return parseInt(a.tempDate[1]) - parseInt(b.tempDate[1]);
+	    }));
+
+	    // track the max data count per month
+	    var HeatMapMaxCount = 0;
+	    var _iteratorNormalCompletion = true;
+	    var _didIteratorError = false;
+	    var _iteratorError = undefined;
+
+	    try {
+	      for (var _iterator = sortedMonthlyDataCount.entries()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	        var _step$value = _slicedToArray(_step.value, 2);
+
+	        var index = _step$value[0];
+	        var value = _step$value[1];
+
+	        parseInt(value.tempData) > HeatMapMaxCount ? HeatMapMaxCount = parseInt(value.tempData) : '';
+	      }
+
+	      // calculate buckets for the heatmap color ranges based on the max data.
+	    } catch (err) {
+	      _didIteratorError = true;
+	      _iteratorError = err;
+	    } finally {
+	      try {
+	        if (!_iteratorNormalCompletion && _iterator.return) {
+	          _iterator.return();
+	        }
+	      } finally {
+	        if (_didIteratorError) {
+	          throw _iteratorError;
+	        }
+	      }
+	    }
+
+	    function setHeatMapEntryBackgroundColor(count) {
+	      // theme.colors.spectrum
+	      var base = HeatMapMaxCount / 10;
+	      var color = _theme2.default.colors.white;
+
+	      count >= base * 1 ? color = _theme2.default.colors.spectrum[10] : null;
+	      count >= base * 2 ? color = _theme2.default.colors.spectrum[9] : null;
+	      count >= base * 3 ? color = _theme2.default.colors.spectrum[8] : null;
+	      count >= base * 4 ? color = _theme2.default.colors.spectrum[7] : null;
+	      count >= base * 5 ? color = _theme2.default.colors.spectrum[6] : null;
+	      count >= base * 6 ? color = _theme2.default.colors.spectrum[5] : null;
+	      count >= base * 7 ? color = _theme2.default.colors.spectrum[4] : null;
+	      count >= base * 8 ? color = _theme2.default.colors.spectrum[3] : null;
+	      count >= base * 9 ? color = _theme2.default.colors.spectrum[2] : null;
+	      count >= base * 10 ? color = _theme2.default.colors.spectrum[1] : null;
+
+	      return color;
+	    };
+
+	    var _iteratorNormalCompletion2 = true;
+	    var _didIteratorError2 = false;
+	    var _iteratorError2 = undefined;
+
+	    try {
+	      for (var _iterator2 = sortedMonthlyDataCount.entries()[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	        var _step2$value = _slicedToArray(_step2.value, 2);
+
+	        var index = _step2$value[0];
+	        var value = _step2$value[1];
+
+	        HeatMap.push(_react2.default.createElement(
+	          'div',
+	          {
+	            style: { backgroundColor: setHeatMapEntryBackgroundColor(value.tempData) },
+	            key: index,
+	            'data-month': value.tempDate[1],
+	            'data-year': value.tempDate[0],
+	            'data-count': value.tempData
+	          },
+	          'X'
+	        ));
+	      }
+	    } catch (err) {
+	      _didIteratorError2 = true;
+	      _iteratorError2 = err;
+	    } finally {
+	      try {
+	        if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	          _iterator2.return();
+	        }
+	      } finally {
+	        if (_didIteratorError2) {
+	          throw _iteratorError2;
+	        }
+	      }
+	    }
+
 	    return _react2.default.createElement(
 	      'div',
 	      { style: navStyles },
@@ -49624,19 +49828,79 @@
 	        monthNames[this.props.targetMonth],
 	        ' ',
 	        this.props.targetYear
+	      ),
+	      _react2.default.createElement(
+	        'div',
+	        { style: heatMapStyles },
+	        HeatMap
 	      )
 	    );
 	  }
-	}); // =========================================
-	// NavBar
-	// ----
-	// Displays and modifies the apps date range
-	// =========================================
+	});
 
 	exports.default = NavBar;
 
 /***/ },
 /* 184 */
+/***/ function(module, exports) {
+
+	/***
+	   Copyright 2013 Teun Duynstee
+
+	   Licensed under the Apache License, Version 2.0 (the "License");
+	   you may not use this file except in compliance with the License.
+	   You may obtain a copy of the License at
+
+	     http://www.apache.org/licenses/LICENSE-2.0
+
+	   Unless required by applicable law or agreed to in writing, software
+	   distributed under the License is distributed on an "AS IS" BASIS,
+	   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	   See the License for the specific language governing permissions and
+	   limitations under the License.
+	 */
+	module.exports = (function() {
+
+	    function identity(v){return v;}
+
+	    function ignoreCase(v){return typeof(v)==="string" ? v.toLowerCase() : v;}
+
+	    function makeCompareFunction(f, opt){
+	     opt = typeof(opt)==="number" ? {direction:opt} : opt||{}; 
+	     if(typeof(f)!="function"){
+	        var prop = f;
+	        // make unary function
+	        f = function(v1){return !!v1[prop] ? v1[prop] : "";}
+	      }
+	      if(f.length === 1) {
+	        // f is a unary function mapping a single item to its sort score
+	        var uf = f; 
+	        var preprocess = opt.ignoreCase?ignoreCase:identity;
+	        f = function(v1,v2) {return preprocess(uf(v1)) < preprocess(uf(v2)) ? -1 : preprocess(uf(v1)) > preprocess(uf(v2)) ? 1 : 0;}
+	      }
+	      if(opt.direction === -1)return function(v1,v2){return -f(v1,v2)};
+	      return f;
+	    }
+
+	    /* adds a secondary compare function to the target function (`this` context)
+	       which is applied in case the first one returns 0 (equal)
+	       returns a new compare function, which has a `thenBy` method as well */
+	    function tb(func, opt) {
+	        var x = typeof(this) == "function" ? this : false;
+	        var y = makeCompareFunction(func, opt);
+	        var f = x ? function(a, b) {
+	                        return x(a,b) || y(a,b);
+	                    } 
+	                  : y;
+	        f.thenBy = tb;
+	        return f;
+	    }
+	    return tb;
+	})();
+
+
+/***/ },
+/* 185 */
 /***/ function(module, exports) {
 
 	'use strict';

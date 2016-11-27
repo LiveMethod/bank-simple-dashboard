@@ -99,7 +99,7 @@ const UntaggedTransactionSlice = React.createClass({
   },
 
   componentWillReceiveProps: function(nextProps) {
-    console.log('uhhhhh');
+    console.log('SideBar componentWillReceiveProps');
   },
 
   mouseOver: function(dotID){

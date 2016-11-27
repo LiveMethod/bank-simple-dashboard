@@ -26,6 +26,8 @@ const ReactApp = React.createClass ({
       notes: [],
       txns: [],
       untagged: [],
+      // tracks which months have data, and how much
+      monthlyDataCount: [],
       // Possible savings = income not allocated for expenses
       monthlyIncome: secrets.monthlyIncome,
       possibleSavings: secrets.monthlyIncome - secrets.expenses,
@@ -128,8 +130,90 @@ const ReactApp = React.createClass ({
     })
   },
 
+  /*
+  * Cycles through some months and checks
+  * whether any data exists for that month.
+  */
+  calculateWhichMonthsHaveData(){
+    console.log('called calculateWhichMonthsHaveData');
+
+    // this is hardcoded for now in the interest of simplicity.
+    const monthsToCheck = [
+      ["2015","01"],
+      ["2015","02"],
+      ["2015","03"],
+      ["2015","04"],
+      ["2015","05"],
+      ["2015","06"],
+      ["2015","07"],
+      ["2015","08"],
+      ["2015","09"],
+      ["2015","10"],
+      ["2015","11"],
+      ["2015","12"],
+      ["2016","01"],
+      ["2016","02"],
+      ["2016","03"],
+      ["2016","04"],
+      ["2016","05"],
+      ["2016","06"],
+      ["2016","07"],
+      ["2016","08"],
+      ["2016","09"],
+      ["2016","10"],
+      ["2016","11"],
+      ["2016","12"],
+      ["2017","01"],
+      ["2017","02"],
+      ["2017","03"],
+      ["2017","04"],
+      ["2017","05"],
+      ["2017","06"],
+      ["2017","07"],
+      ["2017","08"],
+      ["2017","09"],
+      ["2017","10"],
+      ["2017","11"],
+      ["2017","12"],
+    ];
+
+    // this an array of objects created when the check runs.
+    // It expects a year array as a key and a data count as a vaue
+    // like  {[yyyy,mm],n}
+    //
+    // WARNING: at this time no effort is made to ensure that these appear
+    // in the array in chronological order! Data is added as it's returned.
+    let monthlyDataCount = [
+    ]
+
+    for (const date of monthsToCheck){
+      const txnsApi = '/api/transactions?y=' + date[0] + '&m=' + date[1];
+      $.get(txnsApi, function(data){
+
+        // make an object with the date and data count
+        let tempDate = [date[0] , date[1]];
+        let tempData = data.length;
+        let tempObject = {tempDate, tempData};
+        // push that object to the group array
+        monthlyDataCount.push(tempObject);
+        // log
+        // console.log(data.length + " txns for " + date[0] + " " + date[1]);
+        // console.log("monthly data count:" + monthlyDataCount.length);
+
+        // wait until the data count has all values to push to state.
+        if(this.isMounted() && monthlyDataCount.length == monthsToCheck.length){
+          this.setState({
+            monthlyDataCount: monthlyDataCount,
+          });
+          console.log("state monthlyDataCount: " + JSON.stringify(this.state.monthlyDataCount));
+        }
+      }.bind(this));
+    }
+  },
+
   componentDidMount(){
     this.getTxnsForMonth();
+    this.calculateWhichMonthsHaveData();
   },
 
   render: function(){
@@ -151,8 +235,9 @@ const ReactApp = React.createClass ({
         <NavBar
           targetYear={this.state.targetYear}
           targetMonth={this.state.targetMonth}
+          monthlyDataCount = {this.state.monthlyDataCount}
         />
-        
+
         {/* Main (left) content panel */}
         <div style={{width: '75%'}}>
           <PiePanel state={this.state}/>
