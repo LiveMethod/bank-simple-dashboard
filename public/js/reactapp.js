@@ -48876,6 +48876,8 @@
 	      borderLeftWidth: '40px'
 	    };
 
+	    // borderLeftColor: 'red',
+
 	    return _react2.default.createElement(
 	      'li',
 	      { className: 'pie-stat', style: pieStatStyle },
