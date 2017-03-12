@@ -377,8 +377,8 @@
 	      })
 	    );
 
-	    return tableApp;
-	    // return realApp;
+	    // return tableApp;
+	    return realApp;
 	  }
 	});
 
@@ -50214,6 +50214,8 @@
 	  displayName: 'NavBar',
 
 	  render: function render() {
+	    var _this = this;
+
 	    var navStyles = {
 	      width: '100%',
 	      backgroundColor: _theme2.default.colors.veryLightPurple
@@ -50291,12 +50293,12 @@
 	    var _iteratorError2 = undefined;
 
 	    try {
-	      for (var _iterator2 = sortedMonthlyDataCount.entries()[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	      var _loop = function _loop() {
 	        var _step2$value = _slicedToArray(_step2.value, 2),
 	            index = _step2$value[0],
 	            value = _step2$value[1];
 
-	        var monthChickletOpacity = value.tempDate[0] == this.props.targetYear && value.tempDate[1] == this.props.targetMonth ? 1 : 0.3;
+	        var monthChickletOpacity = value.tempDate[0] == _this.props.targetYear && value.tempDate[1] == _this.props.targetMonth ? 1 : 0.3;
 
 	        var monthChickletStyles = {
 	          // Uncomment to access heatmap color
@@ -50332,7 +50334,10 @@
 	            key: index,
 	            'data-month': value.tempDate[1],
 	            'data-year': value.tempDate[0],
-	            'data-count': value.tempData
+	            'data-count': value.tempData,
+	            onClick: function onClick() {
+	              _this.props.setTargetDate(value.tempDate[0], value.tempDate[1]);
+	            }
 	          },
 	          _react2.default.createElement(
 	            'span',
@@ -50346,6 +50351,10 @@
 	            _theme2.default.monthNamesShort[value.tempDate[1]]
 	          )
 	        ));
+	      };
+
+	      for (var _iterator2 = sortedMonthlyDataCount.entries()[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	        _loop();
 	      }
 	    } catch (err) {
 	      _didIteratorError2 = true;

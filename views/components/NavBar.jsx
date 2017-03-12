@@ -95,6 +95,7 @@ const NavBar = React.createClass({
           data-month={value.tempDate[1]}
           data-year={value.tempDate[0]}
           data-count={value.tempData}
+          onClick={() => {this.props.setTargetDate(value.tempDate[0], value.tempDate[1])}}
         >
           <span style={monthChickletYearStyles}>
             {value.tempDate[0]}
