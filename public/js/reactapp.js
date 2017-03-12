@@ -325,6 +325,8 @@
 
 
 	  render: function render() {
+	    var _this2 = this;
+
 	    var realApp = _react2.default.createElement(
 	      'div',
 	      { className: 'orchid-wrap' },
@@ -340,9 +342,16 @@
 	      }),
 	      _react2.default.createElement(
 	        'div',
-	        { style: { width: '75%' } },
-	        _react2.default.createElement(_PiePanel2.default, { state: this.state }),
-	        _react2.default.createElement(_BarPanel2.default, { state: this.state })
+	        { className: 'orchid-dashboard' },
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'orchid-widgets' },
+	          _react2.default.createElement(_PiePanel2.default, { state: this.state }),
+	          _react2.default.createElement(_BarPanel2.default, { state: this.state })
+	        ),
+	        _react2.default.createElement(_SideBar2.default, { state: this.state, refresh: function refresh() {
+	            _this2.getTxnsForMonth();
+	          } })
 	      )
 	    );
 	    var tableWrapStyles = {
@@ -49460,25 +49469,12 @@
 	  displayName: 'SideBar',
 
 	  render: function render() {
-	    var sideBarStyles = {
-	      backgroundColor: '#E7E7F6',
-	      width: '25%',
-	      height: '100%',
-	      position: 'fixed',
-	      display: 'flex',
-	      flexDirection: 'column',
-	      paddingTop: '10px',
-	      paddingBottom: '10px',
-	      overflowY: 'scroll'
-
-	    };
-
 	    var _refresh = this.props.refresh.bind(this);
 
 	    // TODO: figure out why there needs to be a nested div here
 	    return _react2.default.createElement(
 	      'div',
-	      { style: sideBarStyles },
+	      { className: 'orchid-sidebar' },
 	      _react2.default.createElement(
 	        'div',
 	        null,
@@ -49578,40 +49574,14 @@
 	    var dotColor = index <= this.state.dotHover ? dotBackgrounds[index] : dotBackgrounds[0];
 
 	    return {
-	      display: 'block',
-	      width: '10px',
-	      height: '10px',
-	      marginTop: '20px',
-	      borderRadius: '5px',
-	      textDecoration: 'none',
-	      background: dotColor,
-	      boxShadow: 'inset 0px 1px 3px 0px rgba(126,126,215,0.28)'
+	      background: dotColor
 	    };
 	  },
 
 	  render: function render() {
 	    var _this2 = this;
 
-	    var sliceStyle = {
-	      backgroundColor: 'white',
-	      padding: '20px',
-	      paddingBottom: '0px', // 20px is added to the bottom of dots. same visual effect, larger target area.
-	      overflow: 'hidden',
-	      boxShadow: '0px 11px 10px 0px rgba(185,185,198,0.16), 0px 2px 4px 0px rgba(79,79,98,0.16)',
-	      // opacity is halved when an action is pending
-	      opacity: this.state.pending ? 0.5 : 1
-	    };
-
-	    var dotWrapStyle = {
-	      display: 'flex',
-	      flexDirection: 'row',
-	      justifyContent: 'space-between'
-	    };
-
-	    var dotStyle = {
-	      flex: 1,
-	      paddingBottom: '20px'
-	    };
+	    var pendingStatus = this.state.pending ? "slice--is-pending" : " ";
 
 	    var _props$transaction = this.props.transaction,
 	        _id = _props$transaction._id,
@@ -49653,7 +49623,7 @@
 	          { style: { opacity: motion.anim, height: motion.height + 'px', margin: '0 10px 30 10px' } },
 	          _react2.default.createElement(
 	            'div',
-	            { style: sliceStyle, 'data-id': _id, 'data-uuid': uuid },
+	            { className: 'slice ' + pendingStatus, 'data-id': _id, 'data-uuid': uuid },
 	            _react2.default.createElement(
 	              'strong',
 	              null,
@@ -49664,12 +49634,12 @@
 	            description,
 	            _react2.default.createElement(
 	              'div',
-	              { style: dotWrapStyle },
+	              { className: 'slice__dot-container' },
 	              _react2.default.createElement(
 	                'a',
 	                {
 	                  href: '#',
-	                  style: dotStyle,
+	                  className: 'slice__dot',
 	                  onClick: function onClick() {
 	                    _this2.newNoteForTransaction(uuid, 1);
 	                  },
@@ -49684,7 +49654,7 @@
 	                'a',
 	                {
 	                  href: '#',
-	                  style: dotStyle,
+	                  className: 'slice__dot',
 	                  onClick: function onClick() {
 	                    _this2.newNoteForTransaction(uuid, 2);
 	                  },
@@ -49699,7 +49669,7 @@
 	                'a',
 	                {
 	                  href: '#',
-	                  style: dotStyle,
+	                  className: 'slice__dot',
 	                  onClick: function onClick() {
 	                    _this2.newNoteForTransaction(uuid, 3);
 	                  },
@@ -49714,7 +49684,7 @@
 	                'a',
 	                {
 	                  href: '#',
-	                  style: dotStyle,
+	                  className: 'slice__dot',
 	                  onClick: function onClick() {
 	                    _this2.newNoteForTransaction(uuid, 4);
 	                  },
@@ -49729,7 +49699,7 @@
 	                'a',
 	                {
 	                  href: '#',
-	                  style: dotStyle,
+	                  className: 'slice__dot',
 	                  onClick: function onClick() {
 	                    _this2.newNoteForTransaction(uuid, 5);
 	                  },
@@ -49744,7 +49714,7 @@
 	                'a',
 	                {
 	                  href: '#',
-	                  style: dotStyle,
+	                  className: 'slice__dot',
 	                  onClick: function onClick() {
 	                    _this2.newNoteForTransaction(uuid, 6);
 	                  },
@@ -49759,7 +49729,7 @@
 	                'a',
 	                {
 	                  href: '#',
-	                  style: dotStyle,
+	                  className: 'slice__dot',
 	                  onClick: function onClick() {
 	                    _this2.newNoteForTransaction(uuid, 7);
 	                  },
@@ -49774,7 +49744,7 @@
 	                'a',
 	                {
 	                  href: '#',
-	                  style: dotStyle,
+	                  className: 'slice__dot',
 	                  onClick: function onClick() {
 	                    _this2.newNoteForTransaction(uuid, 8);
 	                  },
@@ -49789,7 +49759,7 @@
 	                'a',
 	                {
 	                  href: '#',
-	                  style: dotStyle,
+	                  className: 'slice__dot',
 	                  onClick: function onClick() {
 	                    _this2.newNoteForTransaction(uuid, 9);
 	                  },
@@ -49804,7 +49774,7 @@
 	                'a',
 	                {
 	                  href: '#',
-	                  style: dotStyle,
+	                  className: 'slice__dot',
 	                  onClick: function onClick() {
 	                    _this2.newNoteForTransaction(uuid, 10);
 	                  },

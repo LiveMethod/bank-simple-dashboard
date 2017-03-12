@@ -215,3 +215,50 @@
   font-weight: 700;
   text-transform: uppercase;
 }
+.orchid-dashboard {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+.orchid-widgets {
+  flex-basis: 75%;
+}
+.orchid-sidebar {
+  background-color: #E7E7F6;
+  flex-basis: 25%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  overflow-y: scroll;
+}
+.orchid-sidebar .slice {
+  background-color: #FFFFFF;
+  padding: 20px;
+  padding-bottom: 0px;
+  overflow: hidden;
+  box-shadow: 0px 11px 10px 0px rgba(185, 185, 198, 0.16), 0px 2px 4px 0px rgba(79, 79, 98, 0.16);
+  opacity: 1;
+}
+.orchid-sidebar .slice__dot-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.orchid-sidebar .slice__dot {
+  flex: 1;
+  padding-bottom: 20px;
+}
+.orchid-sidebar .slice__dot > div {
+  display: block;
+  width: 10px;
+  height: 10px;
+  margin-top: 20px;
+  border-radius: 5px;
+  text-decoration: none;
+  box-shadow: inset 0px 1px 3px 0px rgba(126, 126, 215, 0.28);
+}
+.orchid-sidebar .slice--is-pending {
+  opacity: 0.5;
+}

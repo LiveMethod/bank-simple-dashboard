@@ -249,16 +249,17 @@ const ReactApp = React.createClass ({
           setTargetDate={this.setTargetDate}
         />
 
-        {/* Main (left) content panel */}
+        <div className="orchid-dashboard">
+          <div className="orchid-widgets">
+            <PiePanel state={this.state}/>
+            <BarPanel state={this.state}/>
+            {/*
+            <SliverPanel state={this.state}/>
+            */}
+          </div>
 
-        <div style={{width: '75%'}}>
-          <PiePanel state={this.state}/>
-          <BarPanel state={this.state}/>
-          {/*
-          <SliverPanel state={this.state}/>
-          */}
+          <SideBar state={this.state} refresh={() => {this.getTxnsForMonth()}}/>
         </div>
-        {/*<SideBar state={this.state} refresh={() => {this.getTxnsForMonth()}}/>*/}
       </div>
     );
     const tableWrapStyles = {
