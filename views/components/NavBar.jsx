@@ -109,10 +109,20 @@ const NavBar = React.createClass({
       )
     }
 
+    const navArrowStyles = {
+      backgroundColor: theme.colors.mediumDarkPurple,
+    }
+
     return (
     <div style={navStyles}>
+      <div style={navArrowStyles}>
+        &#10140;
+      </div>
       <div style={heatMapStyles}>
         {HeatMap}
+      </div>
+      <div style={navArrowStyles}>
+        &#10140;
       </div>
     </div>)
   }

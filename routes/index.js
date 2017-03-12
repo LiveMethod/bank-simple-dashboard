@@ -9,4 +9,9 @@ router.get('/', function(req, res) {
   res.render('index');
 });
 
+/* GET home page. */
+router.get('/theme', function(req, res) {
+  res.render('theme');
+});
+
 module.exports = router;

@@ -50371,13 +50371,27 @@
 	      }
 	    }
 
+	    var navArrowStyles = {
+	      backgroundColor: _theme2.default.colors.mediumDarkPurple
+	    };
+
 	    return _react2.default.createElement(
 	      'div',
 	      { style: navStyles },
 	      _react2.default.createElement(
 	        'div',
+	        { style: navArrowStyles },
+	        '\u279C'
+	      ),
+	      _react2.default.createElement(
+	        'div',
 	        { style: heatMapStyles },
 	        HeatMap
+	      ),
+	      _react2.default.createElement(
+	        'div',
+	        { style: navArrowStyles },
+	        '\u279C'
 	      )
 	    );
 	  }
