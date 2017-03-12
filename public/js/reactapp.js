@@ -84,11 +84,23 @@
 
 	var _SideBar2 = _interopRequireDefault(_SideBar);
 
-	var _NavBar = __webpack_require__(183);
+	var _ChronoSideBar = __webpack_require__(183);
+
+	var _ChronoSideBar2 = _interopRequireDefault(_ChronoSideBar);
+
+	var _TxnTable = __webpack_require__(185);
+
+	var _TxnTable2 = _interopRequireDefault(_TxnTable);
+
+	var _NavBar = __webpack_require__(186);
 
 	var _NavBar2 = _interopRequireDefault(_NavBar);
 
-	var _secrets = __webpack_require__(185);
+	var _Header = __webpack_require__(187);
+
+	var _Header2 = _interopRequireDefault(_Header);
+
+	var _secrets = __webpack_require__(188);
 
 	var _secrets2 = _interopRequireDefault(_secrets);
 
@@ -97,6 +109,12 @@
 	var _theme2 = _interopRequireDefault(_theme);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	// =========================================
+	// App
+	// ----
+	// Fetches transaction data from api and renders dashboard
+	// =========================================
 
 	var ReactApp = _react2.default.createClass({
 	  displayName: 'ReactApp',
@@ -115,6 +133,7 @@
 	    };
 	  },
 
+
 	  /*
 	  * Calls the API with the month and year specified in the initial state
 	  */
@@ -131,6 +150,7 @@
 	      }
 	    }.bind(this));
 	  },
+
 
 	  /*
 	  * Called after the transactions API call finishes.
@@ -167,13 +187,12 @@
 	        this.setState({
 	          notes: data
 	        });
-	        // there are no notes for any txns yet,
-	        // so the exact mechanics of this are TBD
 	        this.calculateUntaggedTransactions();
 	        // console.log(this.state.notes);
 	      }
 	    }.bind(this));
 	  },
+
 
 	  /*
 	  * populates the state.untagged array with only transactions
@@ -211,6 +230,7 @@
 	      untagged: untaggedTransactions
 	    });
 	  },
+
 
 	  /*
 	  * Cycles through some months and checks
@@ -281,16 +301,32 @@
 	      }
 	    }
 	  },
+
+
+	  /*
+	  *  Set the target year and month in the state
+	  */
+	  setTargetDate: function setTargetDate(year, month) {
+	    console.log('changing target date range to ' + year + ' ' + month);
+	    if (this.isMounted()) {
+	      this.setState({
+	        targetYear: year,
+	        targetMonth: month
+	      });
+	    }
+
+	    this.getTxnsForMonth();
+	  },
+
 	  componentDidMount: function componentDidMount() {
 	    this.getTxnsForMonth();
 	    this.calculateWhichMonthsHaveData();
 	  },
 
-	  render: function render() {
-	    var _this2 = this;
 
+	  render: function render() {
 	    var wrapStyles = {
-	      width: '1100px', // set back to 100% for responsive
+	      width: '100%', // set back to 100% for responsive
 	      margin: '0 auto',
 	      padding: 0,
 	      display: 'flex',
@@ -301,30 +337,50 @@
 	      fontFamily: 'Proxima Nova, helvetica, arial, sans-serif'
 	    };
 
-	    return _react2.default.createElement(
+	    var realApp = _react2.default.createElement(
 	      'div',
 	      { style: wrapStyles },
+	      _react2.default.createElement(_Header2.default, {
+	        targetYear: this.state.targetYear,
+	        targetMonth: this.state.targetMonth
+	      }),
 	      _react2.default.createElement(_NavBar2.default, {
 	        targetYear: this.state.targetYear,
 	        targetMonth: this.state.targetMonth,
-	        monthlyDataCount: this.state.monthlyDataCount
+	        monthlyDataCount: this.state.monthlyDataCount,
+	        setTargetDate: this.setTargetDate
 	      }),
 	      _react2.default.createElement(
 	        'div',
 	        { style: { width: '75%' } },
 	        _react2.default.createElement(_PiePanel2.default, { state: this.state }),
 	        _react2.default.createElement(_BarPanel2.default, { state: this.state })
-	      ),
-	      _react2.default.createElement(_SideBar2.default, { state: this.state, refresh: function refresh() {
-	          _this2.getTxnsForMonth();
-	        } })
+	      )
 	    );
+	    var tableWrapStyles = {
+	      width: '100%',
+	      display: 'flex',
+	      flexDirection: 'row'
+	    };
+
+	    var tableApp = _react2.default.createElement(
+	      'div',
+	      { style: tableWrapStyles },
+	      _react2.default.createElement(_ChronoSideBar2.default, {
+	        targetYear: this.state.targetYear,
+	        targetMonth: this.state.targetMonth,
+	        monthlyDataCount: this.state.monthlyDataCount,
+	        setTargetDate: this.setTargetDate }),
+	      _react2.default.createElement(_TxnTable2.default, {
+	        txns: this.state.txns,
+	        notes: this.state.notes
+	      })
+	    );
+
+	    // return tableApp;
+	    return realApp;
 	  }
-	}); // =========================================
-	// App
-	// ----
-	// Fetches transaction data from api and renders dashboard
-	// =========================================
+	});
 
 	_reactDom2.default.render(_react2.default.createElement(ReactApp, null), document.getElementById('appContainer'));
 
@@ -485,14 +541,103 @@
 /***/ function(module, exports) {
 
 	// shim for using process in browser
-
 	var process = module.exports = {};
+
+	// cached from whatever global is present so that test runners that stub it
+	// don't break things.  But we need to wrap it in a try catch in case it is
+	// wrapped in strict mode code which doesn't define any globals.  It's inside a
+	// function because try/catches deoptimize in certain engines.
+
+	var cachedSetTimeout;
+	var cachedClearTimeout;
+
+	function defaultSetTimout() {
+	    throw new Error('setTimeout has not been defined');
+	}
+	function defaultClearTimeout () {
+	    throw new Error('clearTimeout has not been defined');
+	}
+	(function () {
+	    try {
+	        if (typeof setTimeout === 'function') {
+	            cachedSetTimeout = setTimeout;
+	        } else {
+	            cachedSetTimeout = defaultSetTimout;
+	        }
+	    } catch (e) {
+	        cachedSetTimeout = defaultSetTimout;
+	    }
+	    try {
+	        if (typeof clearTimeout === 'function') {
+	            cachedClearTimeout = clearTimeout;
+	        } else {
+	            cachedClearTimeout = defaultClearTimeout;
+	        }
+	    } catch (e) {
+	        cachedClearTimeout = defaultClearTimeout;
+	    }
+	} ())
+	function runTimeout(fun) {
+	    if (cachedSetTimeout === setTimeout) {
+	        //normal enviroments in sane situations
+	        return setTimeout(fun, 0);
+	    }
+	    // if setTimeout wasn't available but was latter defined
+	    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+	        cachedSetTimeout = setTimeout;
+	        return setTimeout(fun, 0);
+	    }
+	    try {
+	        // when when somebody has screwed with setTimeout but no I.E. maddness
+	        return cachedSetTimeout(fun, 0);
+	    } catch(e){
+	        try {
+	            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+	            return cachedSetTimeout.call(null, fun, 0);
+	        } catch(e){
+	            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+	            return cachedSetTimeout.call(this, fun, 0);
+	        }
+	    }
+
+
+	}
+	function runClearTimeout(marker) {
+	    if (cachedClearTimeout === clearTimeout) {
+	        //normal enviroments in sane situations
+	        return clearTimeout(marker);
+	    }
+	    // if clearTimeout wasn't available but was latter defined
+	    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+	        cachedClearTimeout = clearTimeout;
+	        return clearTimeout(marker);
+	    }
+	    try {
+	        // when when somebody has screwed with setTimeout but no I.E. maddness
+	        return cachedClearTimeout(marker);
+	    } catch (e){
+	        try {
+	            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+	            return cachedClearTimeout.call(null, marker);
+	        } catch (e){
+	            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+	            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+	            return cachedClearTimeout.call(this, marker);
+	        }
+	    }
+
+
+
+	}
 	var queue = [];
 	var draining = false;
 	var currentQueue;
 	var queueIndex = -1;
 
 	function cleanUpNextTick() {
+	    if (!draining || !currentQueue) {
+	        return;
+	    }
 	    draining = false;
 	    if (currentQueue.length) {
 	        queue = currentQueue.concat(queue);
@@ -508,7 +653,7 @@
 	    if (draining) {
 	        return;
 	    }
-	    var timeout = setTimeout(cleanUpNextTick);
+	    var timeout = runTimeout(cleanUpNextTick);
 	    draining = true;
 
 	    var len = queue.length;
@@ -525,7 +670,7 @@
 	    }
 	    currentQueue = null;
 	    draining = false;
-	    clearTimeout(timeout);
+	    runClearTimeout(timeout);
 	}
 
 	process.nextTick = function (fun) {
@@ -537,7 +682,7 @@
 	    }
 	    queue.push(new Item(fun, args));
 	    if (queue.length === 1 && !draining) {
-	        setTimeout(drainQueue, 0);
+	        runTimeout(drainQueue);
 	    }
 	};
 
@@ -8227,6 +8372,10 @@
 	  }
 	};
 
+	function registerNullComponentID() {
+	  ReactEmptyComponentRegistry.registerNullComponentID(this._rootNodeID);
+	}
+
 	var ReactEmptyComponent = function (instantiate) {
 	  this._currentElement = null;
 	  this._rootNodeID = null;
@@ -8235,7 +8384,7 @@
 	assign(ReactEmptyComponent.prototype, {
 	  construct: function (element) {},
 	  mountComponent: function (rootID, transaction, context) {
-	    ReactEmptyComponentRegistry.registerNullComponentID(rootID);
+	    transaction.getReactMountReady().enqueue(registerNullComponentID, this);
 	    this._rootNodeID = rootID;
 	    return ReactReconciler.mountComponent(this._renderedComponent, rootID, transaction, context);
 	  },
@@ -9585,6 +9734,7 @@
 	 */
 	var EventInterface = {
 	  type: null,
+	  target: null,
 	  // currentTarget is set when dispatching; no use in copying it here
 	  currentTarget: emptyFunction.thatReturnsNull,
 	  eventPhase: null,
@@ -9618,8 +9768,6 @@
 	  this.dispatchConfig = dispatchConfig;
 	  this.dispatchMarker = dispatchMarker;
 	  this.nativeEvent = nativeEvent;
-	  this.target = nativeEventTarget;
-	  this.currentTarget = nativeEventTarget;
 
 	  var Interface = this.constructor.Interface;
 	  for (var propName in Interface) {
@@ -9630,7 +9778,11 @@
 	    if (normalize) {
 	      this[propName] = normalize(nativeEvent);
 	    } else {
-	      this[propName] = nativeEvent[propName];
+	      if (propName === 'target') {
+	        this.target = nativeEventTarget;
+	      } else {
+	        this[propName] = nativeEvent[propName];
+	      }
 	    }
 	  }
 
@@ -13479,7 +13631,10 @@
 	      }
 	    });
 
-	    nativeProps.children = content;
+	    if (content) {
+	      nativeProps.children = content;
+	    }
+
 	    return nativeProps;
 	  }
 
@@ -18952,7 +19107,7 @@
 
 	'use strict';
 
-	module.exports = '0.14.6';
+	module.exports = '0.14.8';
 
 /***/ },
 /* 147 */
@@ -37695,7 +37850,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
-	 * jQuery JavaScript Library v2.2.0
+	 * jQuery JavaScript Library v2.2.4
 	 * http://jquery.com/
 	 *
 	 * Includes Sizzle.js
@@ -37705,7 +37860,7 @@
 	 * Released under the MIT license
 	 * http://jquery.org/license
 	 *
-	 * Date: 2016-01-08T20:02Z
+	 * Date: 2016-05-20T17:23Z
 	 */
 
 	(function( global, factory ) {
@@ -37761,7 +37916,7 @@
 
 
 	var
-		version = "2.2.0",
+		version = "2.2.4",
 
 		// Define a local copy of jQuery
 		jQuery = function( selector, context ) {
@@ -37972,6 +38127,7 @@
 		},
 
 		isPlainObject: function( obj ) {
+			var key;
 
 			// Not plain objects:
 			// - Any object or value whose internal [[Class]] property is not "[object Object]"
@@ -37981,14 +38137,18 @@
 				return false;
 			}
 
+			// Not own constructor property must be Object
 			if ( obj.constructor &&
-					!hasOwn.call( obj.constructor.prototype, "isPrototypeOf" ) ) {
+					!hasOwn.call( obj, "constructor" ) &&
+					!hasOwn.call( obj.constructor.prototype || {}, "isPrototypeOf" ) ) {
 				return false;
 			}
 
-			// If the function hasn't returned already, we're confident that
-			// |obj| is a plain object, created by {} or constructed with new Object
-			return true;
+			// Own properties are enumerated firstly, so to speed up,
+			// if last one is own, then all properties are own
+			for ( key in obj ) {}
+
+			return key === undefined || hasOwn.call( obj, key );
 		},
 
 		isEmptyObject: function( obj ) {
@@ -42175,7 +42335,7 @@
 		if ( fn === false ) {
 			fn = returnFalse;
 		} else if ( !fn ) {
-			return this;
+			return elem;
 		}
 
 		if ( one === 1 ) {
@@ -42697,13 +42857,14 @@
 		isDefaultPrevented: returnFalse,
 		isPropagationStopped: returnFalse,
 		isImmediatePropagationStopped: returnFalse,
+		isSimulated: false,
 
 		preventDefault: function() {
 			var e = this.originalEvent;
 
 			this.isDefaultPrevented = returnTrue;
 
-			if ( e ) {
+			if ( e && !this.isSimulated ) {
 				e.preventDefault();
 			}
 		},
@@ -42712,7 +42873,7 @@
 
 			this.isPropagationStopped = returnTrue;
 
-			if ( e ) {
+			if ( e && !this.isSimulated ) {
 				e.stopPropagation();
 			}
 		},
@@ -42721,7 +42882,7 @@
 
 			this.isImmediatePropagationStopped = returnTrue;
 
-			if ( e ) {
+			if ( e && !this.isSimulated ) {
 				e.stopImmediatePropagation();
 			}
 
@@ -42824,14 +42985,14 @@
 		rscriptTypeMasked = /^true\/(.*)/,
 		rcleanScript = /^\s*<!(?:\[CDATA\[|--)|(?:\]\]|--)>\s*$/g;
 
+	// Manipulating tables requires a tbody
 	function manipulationTarget( elem, content ) {
-		if ( jQuery.nodeName( elem, "table" ) &&
-			jQuery.nodeName( content.nodeType !== 11 ? content : content.firstChild, "tr" ) ) {
+		return jQuery.nodeName( elem, "table" ) &&
+			jQuery.nodeName( content.nodeType !== 11 ? content : content.firstChild, "tr" ) ?
 
-			return elem.getElementsByTagName( "tbody" )[ 0 ] || elem;
-		}
-
-		return elem;
+			elem.getElementsByTagName( "tbody" )[ 0 ] ||
+				elem.appendChild( elem.ownerDocument.createElement( "tbody" ) ) :
+			elem;
 	}
 
 	// Replace/restore the type attribute of script elements for safe DOM manipulation
@@ -43338,7 +43499,7 @@
 			// FF meanwhile throws on frame elements through "defaultView.getComputedStyle"
 			var view = elem.ownerDocument.defaultView;
 
-			if ( !view.opener ) {
+			if ( !view || !view.opener ) {
 				view = window;
 			}
 
@@ -43487,15 +43648,18 @@
 			style = elem.style;
 
 		computed = computed || getStyles( elem );
+		ret = computed ? computed.getPropertyValue( name ) || computed[ name ] : undefined;
+
+		// Support: Opera 12.1x only
+		// Fall back to style even without computed
+		// computed is undefined for elems on document fragments
+		if ( ( ret === "" || ret === undefined ) && !jQuery.contains( elem.ownerDocument, elem ) ) {
+			ret = jQuery.style( elem, name );
+		}
 
 		// Support: IE9
 		// getPropertyValue is only needed for .css('filter') (#12537)
 		if ( computed ) {
-			ret = computed.getPropertyValue( name ) || computed[ name ];
-
-			if ( ret === "" && !jQuery.contains( elem.ownerDocument, elem ) ) {
-				ret = jQuery.style( elem, name );
-			}
 
 			// A tribute to the "awesome hack by Dean Edwards"
 			// Android Browser returns percentage for some values,
@@ -43648,19 +43812,6 @@
 			val = name === "width" ? elem.offsetWidth : elem.offsetHeight,
 			styles = getStyles( elem ),
 			isBorderBox = jQuery.css( elem, "boxSizing", false, styles ) === "border-box";
-
-		// Support: IE11 only
-		// In IE 11 fullscreen elements inside of an iframe have
-		// 100x too small dimensions (gh-1764).
-		if ( document.msFullscreenElement && window.top !== window ) {
-
-			// Support: IE11 only
-			// Running getBoundingClientRect on a disconnected node
-			// in IE throws an error.
-			if ( elem.getClientRects().length ) {
-				val = Math.round( elem.getBoundingClientRect()[ name ] * 100 );
-			}
-		}
 
 		// Some non-html elements return undefined for offsetWidth, so check for null/undefined
 		// svg - https://bugzilla.mozilla.org/show_bug.cgi?id=649285
@@ -45018,6 +45169,12 @@
 		}
 	} );
 
+	// Support: IE <=11 only
+	// Accessing the selectedIndex property
+	// forces the browser to respect setting selected
+	// on the option
+	// The getter ensures a default option is selected
+	// when in an optgroup
 	if ( !support.optSelected ) {
 		jQuery.propHooks.selected = {
 			get: function( elem ) {
@@ -45026,6 +45183,16 @@
 					parent.parentNode.selectedIndex;
 				}
 				return null;
+			},
+			set: function( elem ) {
+				var parent = elem.parentNode;
+				if ( parent ) {
+					parent.selectedIndex;
+
+					if ( parent.parentNode ) {
+						parent.parentNode.selectedIndex;
+					}
+				}
 			}
 		};
 	}
@@ -45220,7 +45387,8 @@
 
 
 
-	var rreturn = /\r/g;
+	var rreturn = /\r/g,
+		rspaces = /[\x20\t\r\n\f]+/g;
 
 	jQuery.fn.extend( {
 		val: function( value ) {
@@ -45296,9 +45464,15 @@
 			option: {
 				get: function( elem ) {
 
-					// Support: IE<11
-					// option.value not trimmed (#14858)
-					return jQuery.trim( elem.value );
+					var val = jQuery.find.attr( elem, "value" );
+					return val != null ?
+						val :
+
+						// Support: IE10-11+
+						// option.text throws exceptions (#14686, #14858)
+						// Strip and collapse whitespace
+						// https://html.spec.whatwg.org/#strip-and-collapse-whitespace
+						jQuery.trim( jQuery.text( elem ) ).replace( rspaces, " " );
 				}
 			},
 			select: {
@@ -45351,7 +45525,7 @@
 					while ( i-- ) {
 						option = options[ i ];
 						if ( option.selected =
-								jQuery.inArray( jQuery.valHooks.option.get( option ), values ) > -1
+							jQuery.inArray( jQuery.valHooks.option.get( option ), values ) > -1
 						) {
 							optionSet = true;
 						}
@@ -45529,6 +45703,7 @@
 		},
 
 		// Piggyback on a donor event to simulate a different one
+		// Used only for `focus(in | out)` events
 		simulate: function( type, elem, event ) {
 			var e = jQuery.extend(
 				new jQuery.Event(),
@@ -45536,27 +45711,10 @@
 				{
 					type: type,
 					isSimulated: true
-
-					// Previously, `originalEvent: {}` was set here, so stopPropagation call
-					// would not be triggered on donor event, since in our own
-					// jQuery.event.stopPropagation function we had a check for existence of
-					// originalEvent.stopPropagation method, so, consequently it would be a noop.
-					//
-					// But now, this "simulate" function is used only for events
-					// for which stopPropagation() is noop, so there is no need for that anymore.
-					//
-					// For the compat branch though, guard for "click" and "submit"
-					// events is still used, but was moved to jQuery.event.stopPropagation function
-					// because `originalEvent` should point to the original event for the constancy
-					// with other events and for more focused logic
 				}
 			);
 
 			jQuery.event.trigger( e, null, elem );
-
-			if ( e.isDefaultPrevented() ) {
-				event.preventDefault();
-			}
 		}
 
 	} );
@@ -47046,18 +47204,6 @@
 
 
 
-	// Support: Safari 8+
-	// In Safari 8 documents created via document.implementation.createHTMLDocument
-	// collapse sibling forms: the second one becomes a child of the first one.
-	// Because of that, this security measure has to be disabled in Safari 8.
-	// https://bugs.webkit.org/show_bug.cgi?id=137337
-	support.createHTMLDocument = ( function() {
-		var body = document.implementation.createHTMLDocument( "" ).body;
-		body.innerHTML = "<form></form><form></form>";
-		return body.childNodes.length === 2;
-	} )();
-
-
 	// Argument "data" should be string of html
 	// context (optional): If specified, the fragment will be created in this context,
 	// defaults to document
@@ -47070,12 +47216,7 @@
 			keepScripts = context;
 			context = false;
 		}
-
-		// Stop scripts or inline event handlers from being executed immediately
-		// by using document.implementation
-		context = context || ( support.createHTMLDocument ?
-			document.implementation.createHTMLDocument( "" ) :
-			document );
+		context = context || document;
 
 		var parsed = rsingleTag.exec( data ),
 			scripts = !keepScripts && [];
@@ -47157,7 +47298,7 @@
 			// If it fails, this function gets "jqXHR", "status", "error"
 			} ).always( callback && function( jqXHR, status ) {
 				self.each( function() {
-					callback.apply( self, response || [ jqXHR.responseText, status, jqXHR ] );
+					callback.apply( this, response || [ jqXHR.responseText, status, jqXHR ] );
 				} );
 			} );
 		}
@@ -47315,11 +47456,8 @@
 				}
 
 				// Add offsetParent borders
-				// Subtract offsetParent scroll positions
-				parentOffset.top += jQuery.css( offsetParent[ 0 ], "borderTopWidth", true ) -
-					offsetParent.scrollTop();
-				parentOffset.left += jQuery.css( offsetParent[ 0 ], "borderLeftWidth", true ) -
-					offsetParent.scrollLeft();
+				parentOffset.top += jQuery.css( offsetParent[ 0 ], "borderTopWidth", true );
+				parentOffset.left += jQuery.css( offsetParent[ 0 ], "borderLeftWidth", true );
 			}
 
 			// Subtract parent offsets and element margins
@@ -48405,17 +48543,17 @@
 /* 169 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var now = __webpack_require__(168)
-	  , global = typeof window === 'undefined' ? {} : window
+	/* WEBPACK VAR INJECTION */(function(global) {var now = __webpack_require__(168)
+	  , root = typeof window === 'undefined' ? global : window
 	  , vendors = ['moz', 'webkit']
 	  , suffix = 'AnimationFrame'
-	  , raf = global['request' + suffix]
-	  , caf = global['cancel' + suffix] || global['cancelRequest' + suffix]
+	  , raf = root['request' + suffix]
+	  , caf = root['cancel' + suffix] || root['cancelRequest' + suffix]
 
-	for(var i = 0; i < vendors.length && !raf; i++) {
-	  raf = global[vendors[i] + 'Request' + suffix]
-	  caf = global[vendors[i] + 'Cancel' + suffix]
-	      || global[vendors[i] + 'CancelRequest' + suffix]
+	for(var i = 0; !raf && i < vendors.length; i++) {
+	  raf = root[vendors[i] + 'Request' + suffix]
+	  caf = root[vendors[i] + 'Cancel' + suffix]
+	      || root[vendors[i] + 'CancelRequest' + suffix]
 	}
 
 	// Some versions of FF have rAF but not cAF
@@ -48468,12 +48606,17 @@
 	  // Wrap in a new function to prevent
 	  // `cancel` potentially being assigned
 	  // to the native rAF function
-	  return raf.call(global, fn)
+	  return raf.call(root, fn)
 	}
 	module.exports.cancel = function() {
-	  caf.apply(global, arguments)
+	  caf.apply(root, arguments)
+	}
+	module.exports.polyfill = function() {
+	  root.requestAnimationFrame = raf
+	  root.cancelAnimationFrame = caf
 	}
 
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
 /* 170 */
@@ -49005,11 +49148,15 @@
 	    veryLightPurple: '#E7E7F6',
 	    lightPurple: '#BDBDEB',
 	    mediumPurple: '#7E7ED8',
+	    mediumDarkPurple: '#5858B0',
 	    darkPurple: '#333750',
 
 	    lightPalePurple: '#BFBFDA',
 	    mediumPalePurple: '#80808C',
 	    darkPalePurple: '#505063',
+
+	    headerDateText: '#C6C5F7',
+	    monthChickletText: '#363678',
 
 	    purpleGradient: '-webkit-linear-gradient(top, rgba(99,74,201,1) 0%, rgba(68,42,165,1) 100%)',
 
@@ -49026,6 +49173,36 @@
 	      9: '#28F023',
 	      10: '#09D00A'
 	    }
+	  },
+
+	  monthNamesShort: {
+	    "01": "Jan",
+	    "02": "Feb",
+	    "03": "Mar",
+	    "04": "Apr",
+	    "05": "May",
+	    "06": "Jun",
+	    "07": "Jul",
+	    "08": "Aug",
+	    "09": "Sep",
+	    "10": "Oct",
+	    "11": "Nov",
+	    "12": "Dec"
+	  },
+
+	  monthNamesLong: {
+	    "01": "January",
+	    "02": "February",
+	    "03": "March",
+	    "04": "April",
+	    "05": "May",
+	    "06": "June",
+	    "07": "July",
+	    "08": "August",
+	    "09": "September",
+	    "10": "October",
+	    "11": "November",
+	    "12": "December"
 	  }
 	};
 
@@ -49124,11 +49301,11 @@
 	          hasThisDate[0].txns.push(txns[i]);
 	          // else create one w/ this date and txn
 	        } else {
-	            graphData.push({
-	              date: txnDate,
-	              txns: [txns[i]]
-	            });
-	          }
+	          graphData.push({
+	            date: txnDate,
+	            txns: [txns[i]]
+	          });
+	        }
 	      }
 	    }
 
@@ -49339,6 +49516,7 @@
 	    };
 	  },
 
+
 	  //
 	  getStyle: function getStyle(key) {
 	    if (this.state.shouldRetire && !this.state.didRetire) {
@@ -49356,6 +49534,7 @@
 	      };
 	    }
 	  },
+
 
 	  retireTransaction: function retireTransaction() {
 	    console.log('shitfuck');
@@ -49446,11 +49625,12 @@
 	      paddingBottom: '20px'
 	    };
 
-	    var _props$transaction = this.props.transaction;
-	    var _id = _props$transaction._id;
-	    var uuid = _props$transaction.uuid;
-	    var description = _props$transaction.description;
-	    var bookkeeping_type = _props$transaction.bookkeeping_type;
+	    var _props$transaction = this.props.transaction,
+	        _id = _props$transaction._id,
+	        uuid = _props$transaction.uuid,
+	        description = _props$transaction.description,
+	        bookkeeping_type = _props$transaction.bookkeeping_type;
+
 
 	    var time = this.props.transaction.times.when_recorded_local;
 	    var price = this.props.transaction.amounts.amount / 10000;
@@ -49663,15 +49843,16 @@
 
 	'use strict';
 
-	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }(); // =========================================
-	// NavBar
-	// ----
-	// Displays and modifies the apps date range
-	// =========================================
-
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+
+	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }(); // =========================================
+	// ChronoSideBar
+	// ----
+	// Shows years and months with their txn counts
+	// for use navigating bulk transactions
+	// =========================================
 
 	var _react = __webpack_require__(1);
 
@@ -49689,17 +49870,20 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var NavBar = _react2.default.createClass({
-	  displayName: 'NavBar',
+	var ChronoSideBar = _react2.default.createClass({
+	  displayName: 'ChronoSideBar',
 
 	  render: function render() {
+	    var _this = this;
+
 	    var navStyles = {
-	      width: '100%',
+	      width: '400px',
 	      backgroundColor: _theme2.default.colors.white
 	    };
 
 	    var heatMapStyles = {
-	      display: 'flex'
+	      display: 'flex',
+	      flexDirection: 'column'
 	    };
 
 	    var heatMapEntryStyles = {
@@ -49738,10 +49922,348 @@
 
 	    try {
 	      for (var _iterator = sortedMonthlyDataCount.entries()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	        var _step$value = _slicedToArray(_step.value, 2);
+	        var _step$value = _slicedToArray(_step.value, 2),
+	            index = _step$value[0],
+	            value = _step$value[1];
 
-	        var index = _step$value[0];
-	        var value = _step$value[1];
+	        parseInt(value.tempData) > HeatMapMaxCount ? HeatMapMaxCount = parseInt(value.tempData) : '';
+	      }
+
+	      // calculate buckets for the heatmap color ranges based on the max data.
+	    } catch (err) {
+	      _didIteratorError = true;
+	      _iteratorError = err;
+	    } finally {
+	      try {
+	        if (!_iteratorNormalCompletion && _iterator.return) {
+	          _iterator.return();
+	        }
+	      } finally {
+	        if (_didIteratorError) {
+	          throw _iteratorError;
+	        }
+	      }
+	    }
+
+	    function setHeatMapEntryBackgroundColor(count) {
+	      // theme.colors.spectrum
+	      var base = HeatMapMaxCount / 10;
+	      var color = _theme2.default.colors.white;
+
+	      count >= base * 1 ? color = _theme2.default.colors.spectrum[10] : null;
+	      count >= base * 2 ? color = _theme2.default.colors.spectrum[9] : null;
+	      count >= base * 3 ? color = _theme2.default.colors.spectrum[8] : null;
+	      count >= base * 4 ? color = _theme2.default.colors.spectrum[7] : null;
+	      count >= base * 5 ? color = _theme2.default.colors.spectrum[6] : null;
+	      count >= base * 6 ? color = _theme2.default.colors.spectrum[5] : null;
+	      count >= base * 7 ? color = _theme2.default.colors.spectrum[4] : null;
+	      count >= base * 8 ? color = _theme2.default.colors.spectrum[3] : null;
+	      count >= base * 9 ? color = _theme2.default.colors.spectrum[2] : null;
+	      count >= base * 10 ? color = _theme2.default.colors.spectrum[1] : null;
+
+	      return color;
+	    };
+
+	    var _iteratorNormalCompletion2 = true;
+	    var _didIteratorError2 = false;
+	    var _iteratorError2 = undefined;
+
+	    try {
+	      var _loop = function _loop() {
+	        var _step2$value = _slicedToArray(_step2.value, 2),
+	            index = _step2$value[0],
+	            value = _step2$value[1];
+
+	        // If it's january, append a div thing
+	        if (value.tempDate[1] == '01') {
+	          HeatMap.push(_react2.default.createElement(
+	            'div',
+	            { style: {
+	                backgroundColor: '#eeeeee',
+	                padding: '15px'
+	              } },
+	            value.tempDate[0]
+	          ));
+	        }
+	        HeatMap.push(_react2.default.createElement(
+	          'div',
+	          {
+	            style: {
+	              backgroundColor: setHeatMapEntryBackgroundColor(value.tempData),
+	              padding: '15px'
+	            },
+	            key: index,
+	            'data-month': value.tempDate[1],
+	            'data-year': value.tempDate[0],
+	            'data-count': value.tempData,
+	            onClick: function onClick() {
+	              _this.props.setTargetDate(value.tempDate[0], value.tempDate[1]);
+	            }
+	          },
+	          monthNames[value.tempDate[1]],
+	          ' ',
+	          value.tempDate[0],
+	          ' : ',
+	          value.tempData
+	        ));
+	      };
+
+	      for (var _iterator2 = sortedMonthlyDataCount.entries()[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	        _loop();
+	      }
+	    } catch (err) {
+	      _didIteratorError2 = true;
+	      _iteratorError2 = err;
+	    } finally {
+	      try {
+	        if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	          _iterator2.return();
+	        }
+	      } finally {
+	        if (_didIteratorError2) {
+	          throw _iteratorError2;
+	        }
+	      }
+	    }
+
+	    return _react2.default.createElement(
+	      'div',
+	      { style: navStyles },
+	      _react2.default.createElement(
+	        'h1',
+	        null,
+	        monthNames[this.props.targetMonth],
+	        ' ',
+	        this.props.targetYear
+	      ),
+	      _react2.default.createElement(
+	        'div',
+	        { style: heatMapStyles },
+	        HeatMap
+	      )
+	    );
+	  }
+	});
+
+	exports.default = ChronoSideBar;
+
+/***/ },
+/* 184 */
+/***/ function(module, exports) {
+
+	/***
+	   Copyright 2013 Teun Duynstee
+
+	   Licensed under the Apache License, Version 2.0 (the "License");
+	   you may not use this file except in compliance with the License.
+	   You may obtain a copy of the License at
+
+	     http://www.apache.org/licenses/LICENSE-2.0
+
+	   Unless required by applicable law or agreed to in writing, software
+	   distributed under the License is distributed on an "AS IS" BASIS,
+	   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	   See the License for the specific language governing permissions and
+	   limitations under the License.
+	*/
+	module.exports = (function() {
+
+	    function identity(v){return v;}
+
+	    function ignoreCase(v){return typeof(v)==="string" ? v.toLowerCase() : v;}
+
+	    function makeCompareFunction(f, opt){
+	        opt = typeof(opt)==="number" ? {direction:opt} : opt||{};
+	        if(typeof(f)!="function"){
+	            var prop = f;
+	            // make unary function
+	            f = function(v1){return !!v1[prop] ? v1[prop] : "";}
+	        }
+	        if(f.length === 1) {
+	            // f is a unary function mapping a single item to its sort score
+	            var uf = f;
+	            var preprocess = opt.ignoreCase?ignoreCase:identity;
+	            f = function(v1,v2) {return preprocess(uf(v1)) < preprocess(uf(v2)) ? -1 : preprocess(uf(v1)) > preprocess(uf(v2)) ? 1 : 0;}
+	        }
+	        if(opt.direction === -1) return function(v1,v2){return -f(v1,v2)};
+	        return f;
+	    }
+
+	    /* adds a secondary compare function to the target function (`this` context)
+	       which is applied in case the first one returns 0 (equal)
+	       returns a new compare function, which has a `thenBy` method as well */
+	    function tb(func, opt) {
+	        var x = typeof(this) == "function" ? this : false;
+	        var y = makeCompareFunction(func, opt);
+	        var f = x ? function(a, b) {
+	                        return x(a,b) || y(a,b);
+	                    }
+	                  : y;
+	        f.thenBy = tb;
+	        return f;
+	    }
+	    return tb;
+	})();
+
+
+/***/ },
+/* 185 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactMotion = __webpack_require__(162);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	// =========================================
+	// TxnTable
+	// ----
+	// Takes transactions, and displays a table
+	// =========================================
+
+	var TxnTable = _react2.default.createClass({
+	  displayName: 'TxnTable',
+
+	  render: function render() {
+
+	    function makeRow(txn) {
+	      var rowStyle = {
+	        width: '100%',
+	        backgroundColor: '#FFFFFF',
+	        borderBottomColor: '#DDDDDD',
+	        borderBottomWidth: '1px',
+	        borderBottomStyle: 'solid',
+	        padding: '15px',
+	        display: 'flex',
+	        flexDirection: 'row'
+	      };
+
+	      var rowDataStyle = {
+	        padding: '0 10px'
+	      };
+
+	      return _react2.default.createElement(
+	        'div',
+	        {
+	          style: rowStyle,
+	          transaction: txn,
+	          key: txn.uuid
+	        },
+	        _react2.default.createElement(
+	          'div',
+	          { style: rowDataStyle },
+	          txn.times.when_recorded_local.split(' ')[0]
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { style: rowDataStyle },
+	          txn.description
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { style: rowDataStyle },
+	          txn.amounts.amount / 10000,
+	          ' '
+	        )
+	      );
+	    };
+	    return _react2.default.createElement(
+	      'div',
+	      null,
+	      _react2.default.createElement(
+	        'h1',
+	        null,
+	        'Table hizzere'
+	      ),
+	      this.props.txns.map(function (txn) {
+	        return makeRow(txn);
+	      })
+	    );
+	  }
+	});
+
+	exports.default = TxnTable;
+
+/***/ },
+/* 186 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }(); // =========================================
+	// NavBar
+	// ----
+	// Displays and modifies the apps date range
+	// =========================================
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactMotion = __webpack_require__(162);
+
+	var _theme = __webpack_require__(179);
+
+	var _theme2 = _interopRequireDefault(_theme);
+
+	var _thenby = __webpack_require__(184);
+
+	var _thenby2 = _interopRequireDefault(_thenby);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var NavBar = _react2.default.createClass({
+	  displayName: 'NavBar',
+
+	  render: function render() {
+	    var navStyles = {
+	      width: '100%',
+	      backgroundColor: _theme2.default.colors.veryLightPurple
+	    };
+
+	    var heatMapStyles = {
+	      display: 'flex'
+	    };
+
+	    var heatMapEntryStyles = {
+	      flex: 1
+	    };
+
+	    var monthNames = _theme2.default.monthNamesShort;
+
+	    var HeatMap = [];
+
+	    // date sort the data
+	    var sortedMonthlyDataCount = this.props.monthlyDataCount.sort((0, _thenby2.default)(function (a, b) {
+	      return parseInt(a.tempDate[0]) - parseInt(b.tempDate[0]);
+	    }).thenBy(function (a, b) {
+	      return parseInt(a.tempDate[1]) - parseInt(b.tempDate[1]);
+	    }));
+
+	    // track the max data count per month
+	    var HeatMapMaxCount = 0;
+	    var _iteratorNormalCompletion = true;
+	    var _didIteratorError = false;
+	    var _iteratorError = undefined;
+
+	    try {
+	      for (var _iterator = sortedMonthlyDataCount.entries()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	        var _step$value = _slicedToArray(_step.value, 2),
+	            index = _step$value[0],
+	            value = _step$value[1];
 
 	        parseInt(value.tempData) > HeatMapMaxCount ? HeatMapMaxCount = parseInt(value.tempData) : '';
 	      }
@@ -49787,21 +50309,59 @@
 
 	    try {
 	      for (var _iterator2 = sortedMonthlyDataCount.entries()[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	        var _step2$value = _slicedToArray(_step2.value, 2);
+	        var _step2$value = _slicedToArray(_step2.value, 2),
+	            index = _step2$value[0],
+	            value = _step2$value[1];
 
-	        var index = _step2$value[0];
-	        var value = _step2$value[1];
+	        var monthChickletOpacity = value.tempDate[0] == this.props.targetYear && value.tempDate[1] == this.props.targetMonth ? 1 : 0.3;
 
+	        var monthChickletStyles = {
+	          // Uncomment to access heatmap color
+	          // backgroundColor: setHeatMapEntryBackgroundColor(value.tempData)
+	          backgroundColor: _theme2.default.colors.white,
+	          borderTopWidth: '4px',
+	          borderTopColor: setHeatMapEntryBackgroundColor(value.tempData),
+	          borderTopStyle: 'solid',
+	          boxShadow: '0 11px 10px 0 rgba(185,185,198,0.16), 0 2px 4px 0 rgba(79,79,98,0.16)',
+	          textAlign: 'center',
+	          margin: '12px 6px',
+	          padding: '6px 12px',
+	          opacity: monthChickletOpacity
+	        };
+
+	        var monthChickletYearStyles = {
+	          fontSize: '16px',
+	          color: _theme2.default.colors.monthChickletText,
+	          width: '100%'
+	        };
+
+	        var monthChickletMonthStyles = {
+	          fontSize: '18px',
+	          color: _theme2.default.colors.monthChickletText,
+	          width: '100%',
+	          textTransform: 'uppercase',
+	          fontWeight: '700'
+	        };
 	        HeatMap.push(_react2.default.createElement(
 	          'div',
 	          {
-	            style: { backgroundColor: setHeatMapEntryBackgroundColor(value.tempData) },
+	            style: monthChickletStyles,
 	            key: index,
 	            'data-month': value.tempDate[1],
 	            'data-year': value.tempDate[0],
 	            'data-count': value.tempData
 	          },
-	          'X'
+	          _react2.default.createElement(
+	            'span',
+	            { style: monthChickletYearStyles },
+	            value.tempDate[0]
+	          ),
+	          _react2.default.createElement('br', null),
+	          _react2.default.createElement(
+	            'span',
+	            { style: monthChickletMonthStyles },
+	            _theme2.default.monthNamesShort[value.tempDate[1]]
+	          )
 	        ));
 	      }
 	    } catch (err) {
@@ -49823,13 +50383,6 @@
 	      'div',
 	      { style: navStyles },
 	      _react2.default.createElement(
-	        'h1',
-	        null,
-	        monthNames[this.props.targetMonth],
-	        ' ',
-	        this.props.targetYear
-	      ),
-	      _react2.default.createElement(
 	        'div',
 	        { style: heatMapStyles },
 	        HeatMap
@@ -49841,71 +50394,80 @@
 	exports.default = NavBar;
 
 /***/ },
-/* 184 */
-/***/ function(module, exports) {
+/* 187 */
+/***/ function(module, exports, __webpack_require__) {
 
-	/***
-	   Copyright 2013 Teun Duynstee
+	'use strict';
 
-	   Licensed under the Apache License, Version 2.0 (the "License");
-	   you may not use this file except in compliance with the License.
-	   You may obtain a copy of the License at
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 
-	     http://www.apache.org/licenses/LICENSE-2.0
+	var _react = __webpack_require__(1);
 
-	   Unless required by applicable law or agreed to in writing, software
-	   distributed under the License is distributed on an "AS IS" BASIS,
-	   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-	   See the License for the specific language governing permissions and
-	   limitations under the License.
-	 */
-	module.exports = (function() {
+	var _react2 = _interopRequireDefault(_react);
 
-	    function identity(v){return v;}
+	var _reactMotion = __webpack_require__(162);
 
-	    function ignoreCase(v){return typeof(v)==="string" ? v.toLowerCase() : v;}
+	var _theme = __webpack_require__(179);
 
-	    function makeCompareFunction(f, opt){
-	     opt = typeof(opt)==="number" ? {direction:opt} : opt||{}; 
-	     if(typeof(f)!="function"){
-	        var prop = f;
-	        // make unary function
-	        f = function(v1){return !!v1[prop] ? v1[prop] : "";}
-	      }
-	      if(f.length === 1) {
-	        // f is a unary function mapping a single item to its sort score
-	        var uf = f; 
-	        var preprocess = opt.ignoreCase?ignoreCase:identity;
-	        f = function(v1,v2) {return preprocess(uf(v1)) < preprocess(uf(v2)) ? -1 : preprocess(uf(v1)) > preprocess(uf(v2)) ? 1 : 0;}
-	      }
-	      if(opt.direction === -1)return function(v1,v2){return -f(v1,v2)};
-	      return f;
-	    }
+	var _theme2 = _interopRequireDefault(_theme);
 
-	    /* adds a secondary compare function to the target function (`this` context)
-	       which is applied in case the first one returns 0 (equal)
-	       returns a new compare function, which has a `thenBy` method as well */
-	    function tb(func, opt) {
-	        var x = typeof(this) == "function" ? this : false;
-	        var y = makeCompareFunction(func, opt);
-	        var f = x ? function(a, b) {
-	                        return x(a,b) || y(a,b);
-	                    } 
-	                  : y;
-	        f.thenBy = tb;
-	        return f;
-	    }
-	    return tb;
-	})();
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	var Header = _react2.default.createClass({
+	  displayName: 'Header',
+
+	  render: function render() {
+	    var headerStyles = {
+	      backgroundColor: _theme2.default.colors.mediumDarkPurple,
+	      width: '100%',
+	      display: 'flex',
+	      flexDirection: 'row'
+	    };
+
+	    var headerCenterAreaStyles = {
+	      textTransform: 'uppercase',
+	      textAlign: 'center',
+	      color: _theme2.default.colors.headerDateText,
+	      flex: 1,
+	      padding: '24px',
+	      letterSpacing: '0.32em'
+	    };
+
+	    return _react2.default.createElement(
+	      'div',
+	      { style: headerStyles },
+	      _react2.default.createElement('div', null),
+	      _react2.default.createElement(
+	        'div',
+	        { style: headerCenterAreaStyles },
+	        _theme2.default.monthNamesLong[this.props.targetMonth],
+	        ' ',
+	        this.props.targetYear
+	      ),
+	      _react2.default.createElement('div', null)
+	    );
+	  }
+	}); // =========================================
+	// Header
+	// ----
+	// Currently: Displays the selected range as a title
+	// TODO: Sync button & last synced date on left side
+	// TODO: Search for TXN on right? Needs a spec for 
+	// search scope
+	// =========================================
+
+	exports.default = Header;
 
 /***/ },
-/* 185 */
+/* 188 */
 /***/ function(module, exports) {
 
 	'use strict';
 
 	// carefulllll
+
 
 	// these are hardcoded for now
 	var rent = 2500;

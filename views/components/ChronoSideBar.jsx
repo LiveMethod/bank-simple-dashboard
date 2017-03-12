@@ -1,7 +1,8 @@
 // =========================================
-// NavBar
+// ChronoSideBar
 // ----
-// Displays and modifies the apps date range
+// Shows years and months with their txn counts
+// for use navigating bulk transactions
 // =========================================
 
 import React from 'react';
@@ -9,22 +10,36 @@ import {Motion, spring} from 'react-motion';
 import theme from '../theme.js';
 import firstBy from 'thenby';
 
-const NavBar = React.createClass({
+const ChronoSideBar = React.createClass({
   render: function(){
     const navStyles = {
-      width: '100%',
-      backgroundColor: theme.colors.veryLightPurple,
+      width: '400px',
+      backgroundColor: theme.colors.white,
     };
 
     const heatMapStyles = {
       display: 'flex',
+      flexDirection: 'column',
     };
 
     const heatMapEntryStyles = {
       flex: 1,
     };
 
-    const monthNames = theme.monthNamesShort;
+    const monthNames = {
+      "01": "Jan",
+      "02": "Feb",
+      "03": "Mar",
+      "04": "Apr",
+      "05": "May",
+      "06": "Jun",
+      "07": "Jul",
+      "08": "Aug",
+      "09": "Sep",
+      "10": "Oct",
+      "11": "Nov",
+      "12": "Dec",
+    }
 
     let HeatMap = [];
 
@@ -61,57 +76,37 @@ const NavBar = React.createClass({
     };
 
     for (const [index,value] of sortedMonthlyDataCount.entries()){
-      let monthChickletOpacity = (value.tempDate[0] == this.props.targetYear && value.tempDate[1] == this.props.targetMonth) ? 1 : 0.3;
-
-      const monthChickletStyles = {
-        // Uncomment to access heatmap color
-        // backgroundColor: setHeatMapEntryBackgroundColor(value.tempData)
-        backgroundColor: theme.colors.white,
-        borderTopWidth: '4px',
-        borderTopColor: setHeatMapEntryBackgroundColor(value.tempData),
-        borderTopStyle: 'solid',
-        boxShadow: '0 11px 10px 0 rgba(185,185,198,0.16), 0 2px 4px 0 rgba(79,79,98,0.16)',
-        textAlign: 'center',
-        margin: '12px 6px',
-        padding: '6px 12px',
-        opacity: monthChickletOpacity,
-      }
-
-      const monthChickletYearStyles ={
-        fontSize: '16px',
-        color: theme.colors.monthChickletText,
-        width: '100%',
-      }
-
-      const monthChickletMonthStyles ={
-        fontSize: '18px',
-        color: theme.colors.monthChickletText,
-        width: '100%',
-        textTransform: 'uppercase',
-        fontWeight: '700',
+      // If it's january, append a div thing
+      if(value.tempDate[1] == '01'){
+        HeatMap.push(
+          <div style={{
+            backgroundColor: '#eeeeee',
+            padding: '15px',
+          }}>
+          {value.tempDate[0]}
+          </div>
+        )
       }
       HeatMap.push(
         <div 
-          style={monthChickletStyles}
+          style={{
+            backgroundColor: setHeatMapEntryBackgroundColor(value.tempData),
+            padding: '15px',
+          }}
           key={index} 
           data-month={value.tempDate[1]}
           data-year={value.tempDate[0]}
           data-count={value.tempData}
+          onClick={() => {this.props.setTargetDate(value.tempDate[0], value.tempDate[1])}}
         >
-          <span style={monthChickletYearStyles}>
-            {value.tempDate[0]}
-          </span>
-          <br/>
-          <span style={monthChickletMonthStyles}>
-            {theme.monthNamesShort[value.tempDate[1]]}
-          </span>
-          
+          {monthNames[value.tempDate[1]]} {value.tempDate[0]} : {value.tempData}
         </div>
       )
     }
 
     return (
     <div style={navStyles}>
+      <h1>{monthNames[this.props.targetMonth]} {this.props.targetYear}</h1>
       <div style={heatMapStyles}>
         {HeatMap}
       </div>
@@ -119,4 +114,5 @@ const NavBar = React.createClass({
   }
 });
 
-export default NavBar;
+
+export default ChronoSideBar;

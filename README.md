@@ -13,7 +13,7 @@ install w/ `npm i`
 open 2 terminal windows in the project dir
 
 in window 1, run `mongod`
-  - if it complains, run `auxwww | grep mongod` to find old instances
+  - if it complains, run `ps -ef | grep mongod` to find old instances
   - kill them with `kill -9 XXXXX` where XXXXXX is the process ID of an old instance
   - when the old instances are dead, try `mongod` again
 

@@ -14,7 +14,10 @@ import PiePanel from './components/PiePanel.jsx';
 import BarPanel from './components/BarPanel.jsx';
 import SliverPanel from './components/SliverPanel.jsx';
 import SideBar from './components/SideBar.jsx';
+import ChronoSideBar from './components/ChronoSideBar.jsx';
+import TxnTable from './components/TxnTable.jsx';
 import NavBar from './components/NavBar.jsx';
+import Header from './components/Header.jsx';
 import secrets from '../secrets/secrets';
 import theme from './theme.js';
 
@@ -33,6 +36,7 @@ const ReactApp = React.createClass ({
       possibleSavings: secrets.monthlyIncome - secrets.expenses,
     };
   },
+
   /*
   * Calls the API with the month and year specified in the initial state
   */
@@ -211,6 +215,21 @@ const ReactApp = React.createClass ({
     }
   },
 
+  /*
+  *  Set the target year and month in the state
+  */
+  setTargetDate: function(year, month){
+    console.log(`changing target date range to ${year} ${month}`);
+    if(this.isMounted()){
+      this.setState({
+        targetYear: year,
+        targetMonth: month,
+      });
+    }
+
+    this.getTxnsForMonth();
+  },
+
   componentDidMount(){
     this.getTxnsForMonth();
     this.calculateWhichMonthsHaveData();
@@ -218,7 +237,7 @@ const ReactApp = React.createClass ({
 
   render: function(){
     const wrapStyles = {
-      width: '1100px', // set back to 100% for responsive
+      width: '100%', // set back to 100% for responsive
       margin: '0 auto',
       padding: 0,
       display: 'flex',
@@ -229,13 +248,17 @@ const ReactApp = React.createClass ({
       fontFamily: 'Proxima Nova, helvetica, arial, sans-serif',
     };
 
-    return(
+    let realApp = (
       <div style={wrapStyles}>
-        
+        <Header
+          targetYear={this.state.targetYear}
+          targetMonth={this.state.targetMonth}
+        />
         <NavBar
           targetYear={this.state.targetYear}
           targetMonth={this.state.targetMonth}
           monthlyDataCount = {this.state.monthlyDataCount}
+          setTargetDate={this.setTargetDate}
         />
 
         {/* Main (left) content panel */}
@@ -247,9 +270,31 @@ const ReactApp = React.createClass ({
           <SliverPanel state={this.state}/>
           */}
         </div>
-        <SideBar state={this.state} refresh={() => {this.getTxnsForMonth()}}/>
+        {/*<SideBar state={this.state} refresh={() => {this.getTxnsForMonth()}}/>*/}
+      </div>
+    );
+    const tableWrapStyles = {
+      width: '100%',
+      display: 'flex',
+      flexDirection: 'row',
+    }
+
+    let tableApp = (
+      <div style={tableWrapStyles}>
+        <ChronoSideBar
+          targetYear={this.state.targetYear}
+          targetMonth={this.state.targetMonth}
+          monthlyDataCount = {this.state.monthlyDataCount}
+          setTargetDate={this.setTargetDate} />
+        <TxnTable
+          txns={this.state.txns}
+          notes={this.state.notes}
+        />
       </div>
     )
+
+    // return tableApp;
+    return realApp;
   }
 });
 
