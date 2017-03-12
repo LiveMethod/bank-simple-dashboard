@@ -24,8 +24,6 @@ const NavBar = React.createClass({
       flex: 1,
     };
 
-    const monthNames = theme.monthNamesShort;
-
     let HeatMap = [];
 
     // date sort the data

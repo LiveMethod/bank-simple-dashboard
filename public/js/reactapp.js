@@ -377,8 +377,8 @@
 	      })
 	    );
 
-	    // return tableApp;
-	    return realApp;
+	    return tableApp;
+	    // return realApp;
 	  }
 	});
 
@@ -49890,21 +49890,6 @@
 	      flex: 1
 	    };
 
-	    var monthNames = {
-	      "01": "Jan",
-	      "02": "Feb",
-	      "03": "Mar",
-	      "04": "Apr",
-	      "05": "May",
-	      "06": "Jun",
-	      "07": "Jul",
-	      "08": "Aug",
-	      "09": "Sep",
-	      "10": "Oct",
-	      "11": "Nov",
-	      "12": "Dec"
-	    };
-
 	    var HeatMap = [];
 
 	    // date sort the data
@@ -50000,7 +49985,7 @@
 	              _this.props.setTargetDate(value.tempDate[0], value.tempDate[1]);
 	            }
 	          },
-	          monthNames[value.tempDate[1]],
+	          _theme2.default.monthNamesShort[value.tempDate[1]],
 	          ' ',
 	          value.tempDate[0],
 	          ' : ',
@@ -50032,7 +50017,7 @@
 	      _react2.default.createElement(
 	        'h1',
 	        null,
-	        monthNames[this.props.targetMonth],
+	        _theme2.default.monthNamesShort[this.props.targetMonth],
 	        ' ',
 	        this.props.targetYear
 	      ),
@@ -50241,8 +50226,6 @@
 	    var heatMapEntryStyles = {
 	      flex: 1
 	    };
-
-	    var monthNames = _theme2.default.monthNamesShort;
 
 	    var HeatMap = [];
 

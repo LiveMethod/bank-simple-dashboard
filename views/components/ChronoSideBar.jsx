@@ -26,21 +26,6 @@ const ChronoSideBar = React.createClass({
       flex: 1,
     };
 
-    const monthNames = {
-      "01": "Jan",
-      "02": "Feb",
-      "03": "Mar",
-      "04": "Apr",
-      "05": "May",
-      "06": "Jun",
-      "07": "Jul",
-      "08": "Aug",
-      "09": "Sep",
-      "10": "Oct",
-      "11": "Nov",
-      "12": "Dec",
-    }
-
     let HeatMap = [];
 
     // date sort the data
@@ -99,14 +84,14 @@ const ChronoSideBar = React.createClass({
           data-count={value.tempData}
           onClick={() => {this.props.setTargetDate(value.tempDate[0], value.tempDate[1])}}
         >
-          {monthNames[value.tempDate[1]]} {value.tempDate[0]} : {value.tempData}
+          {theme.monthNamesShort[value.tempDate[1]]} {value.tempDate[0]} : {value.tempData}
         </div>
       )
     }
 
     return (
     <div style={navStyles}>
-      <h1>{monthNames[this.props.targetMonth]} {this.props.targetYear}</h1>
+      <h1>{theme.monthNamesShort[this.props.targetMonth]} {this.props.targetYear}</h1>
       <div style={heatMapStyles}>
         {HeatMap}
       </div>
