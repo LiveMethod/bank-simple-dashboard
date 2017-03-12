@@ -325,21 +325,9 @@
 
 
 	  render: function render() {
-	    var wrapStyles = {
-	      width: '100%', // set back to 100% for responsive
-	      margin: '0 auto',
-	      padding: 0,
-	      display: 'flex',
-	      flexDirection: 'row',
-	      flexFlow: 'row wrap',
-	      backgroundColor: _theme2.default.colors.darkPurple,
-	      overflow: 'hidden',
-	      fontFamily: 'Proxima Nova, helvetica, arial, sans-serif'
-	    };
-
 	    var realApp = _react2.default.createElement(
 	      'div',
-	      { style: wrapStyles },
+	      { className: 'orchid-wrap' },
 	      _react2.default.createElement(_Header2.default, {
 	        targetYear: this.state.targetYear,
 	        targetMonth: this.state.targetMonth
@@ -50216,19 +50204,6 @@
 	  render: function render() {
 	    var _this = this;
 
-	    var navStyles = {
-	      width: '100%',
-	      backgroundColor: _theme2.default.colors.veryLightPurple
-	    };
-
-	    var heatMapStyles = {
-	      display: 'flex'
-	    };
-
-	    var heatMapEntryStyles = {
-	      flex: 1
-	    };
-
 	    var HeatMap = [];
 
 	    // date sort the data
@@ -50298,56 +50273,32 @@
 	            index = _step2$value[0],
 	            value = _step2$value[1];
 
-	        var monthChickletOpacity = value.tempDate[0] == _this.props.targetYear && value.tempDate[1] == _this.props.targetMonth ? 1 : 0.3;
-
-	        var monthChickletStyles = {
-	          // Uncomment to access heatmap color
-	          // backgroundColor: setHeatMapEntryBackgroundColor(value.tempData)
-	          backgroundColor: _theme2.default.colors.white,
-	          borderTopWidth: '4px',
-	          borderTopColor: setHeatMapEntryBackgroundColor(value.tempData),
-	          borderTopStyle: 'solid',
-	          boxShadow: '0 11px 10px 0 rgba(185,185,198,0.16), 0 2px 4px 0 rgba(79,79,98,0.16)',
-	          textAlign: 'center',
-	          margin: '12px 6px',
-	          padding: '6px 12px',
-	          opacity: monthChickletOpacity
-	        };
-
-	        var monthChickletYearStyles = {
-	          fontSize: '16px',
-	          color: _theme2.default.colors.monthChickletText,
-	          width: '100%'
-	        };
-
-	        var monthChickletMonthStyles = {
-	          fontSize: '18px',
-	          color: _theme2.default.colors.monthChickletText,
-	          width: '100%',
-	          textTransform: 'uppercase',
-	          fontWeight: '700'
-	        };
+	        var monthChickletActive = "";
+	        if (value.tempDate[0] == _this.props.targetYear && value.tempDate[1] == _this.props.targetMonth) {
+	          monthChickletActive = "orchid-month-select__month-chicklet--active";
+	        }
 	        HeatMap.push(_react2.default.createElement(
-	          'div',
+	          'a',
 	          {
-	            style: monthChickletStyles,
+	            className: 'orchid-month-select__month-chicklet ' + monthChickletActive,
+	            href: '',
 	            key: index,
 	            'data-month': value.tempDate[1],
 	            'data-year': value.tempDate[0],
 	            'data-count': value.tempData,
-	            onClick: function onClick() {
-	              _this.props.setTargetDate(value.tempDate[0], value.tempDate[1]);
+	            onClick: function onClick(e) {
+	              e.preventDefault();_this.props.setTargetDate(value.tempDate[0], value.tempDate[1]);
 	            }
 	          },
 	          _react2.default.createElement(
-	            'span',
-	            { style: monthChickletYearStyles },
+	            'small',
+	            null,
 	            value.tempDate[0]
 	          ),
 	          _react2.default.createElement('br', null),
 	          _react2.default.createElement(
-	            'span',
-	            { style: monthChickletMonthStyles },
+	            'big',
+	            null,
 	            _theme2.default.monthNamesShort[value.tempDate[1]]
 	          )
 	        ));
@@ -50371,26 +50322,22 @@
 	      }
 	    }
 
-	    var navArrowStyles = {
-	      backgroundColor: _theme2.default.colors.mediumDarkPurple
-	    };
-
 	    return _react2.default.createElement(
 	      'div',
-	      { style: navStyles },
+	      { className: 'orchid-month-select' },
 	      _react2.default.createElement(
 	        'div',
-	        { style: navArrowStyles },
+	        { className: 'orchid-month-select__arrow' },
 	        '\u279C'
 	      ),
 	      _react2.default.createElement(
 	        'div',
-	        { style: heatMapStyles },
+	        { className: 'orchid-month-select__heat-map' },
 	        HeatMap
 	      ),
 	      _react2.default.createElement(
 	        'div',
-	        { style: navArrowStyles },
+	        { className: 'orchid-month-select__arrow' },
 	        '\u279C'
 	      )
 	    );
@@ -50425,29 +50372,13 @@
 	  displayName: 'Header',
 
 	  render: function render() {
-	    var headerStyles = {
-	      backgroundColor: _theme2.default.colors.mediumDarkPurple,
-	      width: '100%',
-	      display: 'flex',
-	      flexDirection: 'row'
-	    };
-
-	    var headerCenterAreaStyles = {
-	      textTransform: 'uppercase',
-	      textAlign: 'center',
-	      color: _theme2.default.colors.headerDateText,
-	      flex: 1,
-	      padding: '24px',
-	      letterSpacing: '0.32em'
-	    };
-
 	    return _react2.default.createElement(
 	      'div',
-	      { style: headerStyles },
+	      { className: 'orchid-header' },
 	      _react2.default.createElement('div', null),
 	      _react2.default.createElement(
 	        'div',
-	        { style: headerCenterAreaStyles },
+	        { className: 'orchid-header__center' },
 	        _theme2.default.monthNamesLong[this.props.targetMonth],
 	        ' ',
 	        this.props.targetYear

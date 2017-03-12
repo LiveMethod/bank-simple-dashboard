@@ -11,18 +11,6 @@ import firstBy from 'thenby';
 
 const NavBar = React.createClass({
   render: function(){
-    const navStyles = {
-      width: '100%',
-      backgroundColor: theme.colors.veryLightPurple,
-    };
-
-    const heatMapStyles = {
-      display: 'flex',
-    };
-
-    const heatMapEntryStyles = {
-      flex: 1,
-    };
 
     let HeatMap = [];
 
@@ -59,69 +47,37 @@ const NavBar = React.createClass({
     };
 
     for (const [index,value] of sortedMonthlyDataCount.entries()){
-      let monthChickletOpacity = (value.tempDate[0] == this.props.targetYear && value.tempDate[1] == this.props.targetMonth) ? 1 : 0.3;
-
-      const monthChickletStyles = {
-        // Uncomment to access heatmap color
-        // backgroundColor: setHeatMapEntryBackgroundColor(value.tempData)
-        backgroundColor: theme.colors.white,
-        borderTopWidth: '4px',
-        borderTopColor: setHeatMapEntryBackgroundColor(value.tempData),
-        borderTopStyle: 'solid',
-        boxShadow: '0 11px 10px 0 rgba(185,185,198,0.16), 0 2px 4px 0 rgba(79,79,98,0.16)',
-        textAlign: 'center',
-        margin: '12px 6px',
-        padding: '6px 12px',
-        opacity: monthChickletOpacity,
-      }
-
-      const monthChickletYearStyles ={
-        fontSize: '16px',
-        color: theme.colors.monthChickletText,
-        width: '100%',
-      }
-
-      const monthChickletMonthStyles ={
-        fontSize: '18px',
-        color: theme.colors.monthChickletText,
-        width: '100%',
-        textTransform: 'uppercase',
-        fontWeight: '700',
+      let monthChickletActive = "";
+      if(value.tempDate[0] == this.props.targetYear && value.tempDate[1] == this.props.targetMonth){
+        monthChickletActive = "orchid-month-select__month-chicklet--active";
       }
       HeatMap.push(
-        <div 
-          style={monthChickletStyles}
+        <a 
+          className={`orchid-month-select__month-chicklet ${monthChickletActive}`}
+          href=""
           key={index} 
           data-month={value.tempDate[1]}
           data-year={value.tempDate[0]}
           data-count={value.tempData}
-          onClick={() => {this.props.setTargetDate(value.tempDate[0], value.tempDate[1])}}
+          onClick={(e) => {e.preventDefault(); this.props.setTargetDate(value.tempDate[0], value.tempDate[1])}}
         >
-          <span style={monthChickletYearStyles}>
-            {value.tempDate[0]}
-          </span>
+          <small>{value.tempDate[0]}</small>
           <br/>
-          <span style={monthChickletMonthStyles}>
-            {theme.monthNamesShort[value.tempDate[1]]}
-          </span>
+          <big>{theme.monthNamesShort[value.tempDate[1]]}</big>
           
-        </div>
+        </a>
       )
     }
 
-    const navArrowStyles = {
-      backgroundColor: theme.colors.mediumDarkPurple,
-    }
-
     return (
-    <div style={navStyles}>
-      <div style={navArrowStyles}>
+    <div className="orchid-month-select">
+      <div className="orchid-month-select__arrow">
         &#10140;
       </div>
-      <div style={heatMapStyles}>
+      <div className="orchid-month-select__heat-map">
         {HeatMap}
       </div>
-      <div style={navArrowStyles}>
+      <div className="orchid-month-select__arrow">
         &#10140;
       </div>
     </div>)

@@ -1,0 +1,56 @@
+.orchid-month-select{
+	width: 100%;
+	background-color: @orchid-13;
+	display: flex;
+
+	&__heat-map{
+		flex-grow: 1;
+		display: flex;
+		overflow: hidden;
+		padding: 0 6px;
+	}
+
+	&__arrow{
+		flex-grow: 1;
+		flex-basis: 30px;
+		background-color: @orchid-7;
+		color: @orchid-15;
+	}
+
+	&__month-chicklet{
+		background-color: @orchid-15;
+        border-top: 4px solid red; // this should be dynamic again
+        box-shadow: 0 11px 10px 0 rgba(185,185,198,0.16), 0 2px 4px 0 rgba(79,79,98,0.16);
+        text-align: center;
+        margin: 12px 6px;
+        padding: 6px 12px;
+        opacity: 0.3;
+        transition: all 0.07s ease-in-out;
+        text-decoration: none;
+
+
+        &--active{
+        	opacity: 1;
+        }
+
+        &:hover{
+        	opacity: 0.7;
+        	margin: 6px 6px 18px;
+        	box-shadow: 0 18px 10px 0 rgba(185,185,198,0.2), 0 2px 4px 0 rgba(79,79,98,0.16);
+        }
+
+        small{
+        	font-size: 16px;
+	        color:@orchid-4;
+	        width: 100%;
+        }
+
+        big{
+        	font-size: 18px;
+	        color:@orchid-4;
+	        width: 100%;
+	        font-weight: 700;
+	        text-transform: uppercase;
+        }
+	}
+}

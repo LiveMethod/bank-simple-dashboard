@@ -13,28 +13,14 @@ import theme from '../theme.js';
 
 const Header = React.createClass({
   render: function(){
-    const headerStyles = {
-    	backgroundColor: theme.colors.mediumDarkPurple,
-    	width: '100%',
-    	display: 'flex',
-    	flexDirection: 'row',
-    }
-
-    const headerCenterAreaStyles = {
-    	textTransform: 'uppercase',
-    	textAlign: 'center',
-    	color: theme.colors.headerDateText,
-    	flex: 1,
-    	padding: '24px',
-    	letterSpacing: '0.32em',
-    }
-
     return (
-	    <div style={headerStyles}>
-	      <div></div>
-	      <div style={headerCenterAreaStyles}>{theme.monthNamesLong[this.props.targetMonth]} {this.props.targetYear}</div>
-	      <div></div>
-	    </div>
+      <div className="orchid-header">
+        <div></div>
+        <div className="orchid-header__center">
+            {theme.monthNamesLong[this.props.targetMonth]} {this.props.targetYear}
+          </div>
+        <div></div>
+      </div>
     )
   }
 });

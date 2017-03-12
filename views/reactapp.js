@@ -236,20 +236,8 @@ const ReactApp = React.createClass ({
   },
 
   render: function(){
-    const wrapStyles = {
-      width: '100%', // set back to 100% for responsive
-      margin: '0 auto',
-      padding: 0,
-      display: 'flex',
-      flexDirection: 'row',
-      flexFlow: 'row wrap',
-      backgroundColor: theme.colors.darkPurple,
-      overflow: 'hidden',
-      fontFamily: 'Proxima Nova, helvetica, arial, sans-serif',
-    };
-
     let realApp = (
-      <div style={wrapStyles}>
+      <div className="orchid-wrap">
         <Header
           targetYear={this.state.targetYear}
           targetMonth={this.state.targetMonth}
